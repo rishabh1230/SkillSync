@@ -22,12 +22,18 @@ export class AuthService {
       throw new BadRequestException('User already exists');
     }
 
+    if(data.username == null || data.password == null) {
+      throw new BadRequestException('Username and password are required');
+    }
+
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const user = await this.prisma.user.create({
       data: {
         email: data.email,
         password: hashedPassword,
+        phone_no: data.phone_no,
+        username: data.username
       },
     });
 
@@ -35,7 +41,9 @@ export class AuthService {
       message: "User registered successfully",
       user: {
         id: user.id,
-        email: user.email
+        email: user.email,
+        username: user.username,
+        phone_no: user.phone_no
       }
     };
   }
