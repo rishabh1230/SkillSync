@@ -3,6 +3,55 @@
 SkillSync is a scalable microservices-based platform designed for collaboration, hackathons, and project management.
 
 ---
+## 🧩 System Architecture Diagram
+
+```mermaid
+flowchart TD
+
+    Client[👤 Client / Frontend (React)] -->|HTTP Requests| Gateway[🌐 API Gateway :3000]
+
+    subgraph Microservices
+        Auth[🔐 Auth Service :3001]
+        User[👤 User Service :3002]
+        Project[📁 Project Service :3003]
+        Chat[💬 Chat Service :3004]
+        Hackathon[🏆 Hackathon Service :3005]
+        Notification[🔔 Notification Service :3006]
+    end
+
+    Gateway --> Auth
+    Gateway --> User
+    Gateway --> Project
+    Gateway --> Chat
+    Gateway --> Hackathon
+
+    User --> Notification
+    Project --> Notification
+    Hackathon --> Notification
+
+    Chat <-->|WebSocket| Client
+
+    subgraph Shared Layer
+        Redis[(⚡ Redis Cache)]
+        Utils[🧰 Shared Utils]
+    end
+
+    Auth --> Redis
+    User --> Redis
+    Project --> Redis
+
+    Auth --> Utils
+    User --> Utils
+    Project --> Utils
+
+    subgraph Deployment
+        Docker[🐳 Docker]
+        K8s[☸️ Kubernetes]
+    end
+
+    Docker --> Microservices
+    K8s --> Microservices
+```
 
 ## 📁 Project Structure
 
