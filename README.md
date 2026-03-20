@@ -1,6 +1,12 @@
-##SkillSync - A complete microservice system for Coders and 
+# 🚀 SkillSync - Microservices Monorepo
 
-Project Root(Monorepo)
+SkillSync is a scalable microservices-based platform designed for collaboration, hackathons, and project management.
+
+---
+
+## 📁 Project Structure
+
+```
 skillsync/
 │
 ├── api-gateway/
@@ -22,17 +28,24 @@ skillsync/
 │   └── kubernetes/
 │
 ├── docs/
-│
 └── frontend/
+```
 
-Explanation:
-api-gateway → routes requests to services
-services → each microservice
-shared → reusable code
-docker → container configs
-frontend → React app
+---
 
-API Gateway Structure
+## 🧠 Architecture Overview
+
+- API Gateway → Routes client requests to services  
+- Microservices → Domain-based independent services  
+- Shared → Common utilities and configs  
+- Docker/Kubernetes → Deployment and scaling  
+- Frontend → React application  
+
+---
+
+## 🌐 API Gateway Structure
+
+```
 api-gateway/
 │
 ├── src/
@@ -55,9 +68,13 @@ api-gateway/
 │   └── server.js
 │
 └── package.json
+```
 
-Auth Service Structure
+---
 
+## 🔐 Auth Service
+
+```
 auth-service/
 │
 ├── src/
@@ -82,9 +99,13 @@ auth-service/
 │   └── server.js
 │
 └── package.json
+```
 
-User Service Structure
+---
 
+## 👤 User Service
+
+```
 user-service/
 │
 ├── src/
@@ -107,9 +128,13 @@ user-service/
 │   │   └── user.events.js
 │   │
 │   └── server.js
+```
 
+---
 
-Project Service Structure
+## 📁 Project Service
+
+```
 project-service/
 │
 ├── src/
@@ -120,7 +145,7 @@ project-service/
 │   │   └── project.routes.js
 │   │
 │   ├── models/
-│   │   │── project.model.js
+│   │   ├── project.model.js
 │   │   └── task.model.js
 │   │
 │   ├── services/
@@ -130,9 +155,13 @@ project-service/
 │   │   └── project.repository.js
 │   │
 │   └── server.js
+```
 
-Chat Service Structure
+---
 
+## 💬 Chat Service
+
+```
 chat-service/
 │
 ├── src/
@@ -149,9 +178,13 @@ chat-service/
 │   │   └── chat.service.js
 │   │
 │   └── server.js
+```
 
+---
 
-Notification Service Structure
+## 🔔 Notification Service
+
+```
 notification-service/
 │
 ├── src/
@@ -165,8 +198,13 @@ notification-service/
 │   │   └── email.service.js
 │   │
 │   └── server.js
+```
 
-Shared Folder
+---
+
+## 🔁 Shared Module
+
+```
 shared/
 │
 ├── config/
@@ -179,8 +217,13 @@ shared/
 └── utils/
     ├── errorHandler.js
     └── responseFormatter.js
+```
 
-Docker Deployment Structure
+---
+
+## 🐳 Docker & Deployment
+
+```
 docker/
 │
 ├── docker-compose.yml
@@ -189,9 +232,13 @@ docker/
     ├── auth-deployment.yaml
     ├── user-deployment.yaml
     └── project-deployment.yaml
+```
 
+---
 
-Frontend 
+## 🎨 Frontend (React)
+
+```
 frontend/
 │
 ├── src/
@@ -201,14 +248,57 @@ frontend/
 │   ├── hooks/
 │   ├── store/
 │   └── App.jsx
+```
 
+---
 
+## 🔌 Service Ports
 
-PORTS of All the services
-API Gateway → 3000
-Auth Service → 3001
-User Service → 3002
-Project Service → 3003
-Chat Service → 3004
-Hackathon Service → 3005
-Notification Service → 3006
+| Service               | Port  |
+|----------------------|------|
+| API Gateway          | 3000 |
+| Auth Service         | 3001 |
+| User Service         | 3002 |
+| Project Service      | 3003 |
+| Chat Service         | 3004 |
+| Hackathon Service    | 3005 |
+| Notification Service | 3006 |
+
+---
+
+## ⚙️ Tech Stack
+
+- Backend: Node.js, Express  
+- Frontend: React  
+- Database: MongoDB / PostgreSQL  
+- Message Broker: Kafka / RabbitMQ  
+- Cache: Redis  
+- Containerization: Docker  
+- Orchestration: Kubernetes  
+
+---
+
+## 🚀 Getting Started
+
+```bash
+git clone https://github.com/your-repo/skillsync.git
+cd skillsync
+docker-compose up --build
+```
+
+---
+
+## 📌 Features
+
+- Microservices Architecture  
+- API Gateway Routing  
+- Real-time Chat (WebSockets)  
+- Event-driven Notifications  
+- Scalable Deployment  
+- Shared Utilities  
+
+---
+
+## 📄 License
+
+MIT License
