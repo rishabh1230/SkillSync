@@ -8,15 +8,15 @@ SkillSync is a scalable microservices-based platform designed for collaboration,
 ```mermaid
 flowchart TD
 
-    Client[👤 Client / Frontend (React)] -->|HTTP Requests| Gateway[🌐 API Gateway :3000]
+    Client["Client / Frontend (React)"] -->|HTTP Requests| Gateway["API Gateway :3000"]
 
     subgraph Microservices
-        Auth[🔐 Auth Service :3001]
-        User[👤 User Service :3002]
-        Project[📁 Project Service :3003]
-        Chat[💬 Chat Service :3004]
-        Hackathon[🏆 Hackathon Service :3005]
-        Notification[🔔 Notification Service :3006]
+        Auth["Auth Service :3001"]
+        User["User Service :3002"]
+        Project["Project Service :3003"]
+        Chat["Chat Service :3004"]
+        Hackathon["Hackathon Service :3005"]
+        Notification["Notification Service :3006"]
     end
 
     Gateway --> Auth
@@ -31,9 +31,9 @@ flowchart TD
 
     Chat <-->|WebSocket| Client
 
-    subgraph Shared Layer
-        Redis[(⚡ Redis Cache)]
-        Utils[🧰 Shared Utils]
+    subgraph Shared
+        Redis["Redis Cache"]
+        Utils["Shared Utils"]
     end
 
     Auth --> Redis
@@ -45,12 +45,23 @@ flowchart TD
     Project --> Utils
 
     subgraph Deployment
-        Docker[🐳 Docker]
-        K8s[☸️ Kubernetes]
+        Docker["Docker"]
+        K8s["Kubernetes"]
     end
 
-    Docker --> Microservices
-    K8s --> Microservices
+    Docker --> Auth
+    Docker --> User
+    Docker --> Project
+    Docker --> Chat
+    Docker --> Hackathon
+    Docker --> Notification
+
+    K8s --> Auth
+    K8s --> User
+    K8s --> Project
+    K8s --> Chat
+    K8s --> Hackathon
+    K8s --> Notification
 ```
 
 ## 📁 Project Structure
