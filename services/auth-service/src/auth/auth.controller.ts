@@ -18,4 +18,11 @@ export class AuthController {
     return this.authService.login(body);
   }
 
+
+  // UPDATE PASSWORD
+  @Post('update-password')
+  updatePassword(@Body() body: any) {
+    return this.authService.updatePassword(body);
+  }
+
 }

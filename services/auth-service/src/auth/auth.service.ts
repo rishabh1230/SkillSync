@@ -79,4 +79,35 @@ export class AuthService {
     };
   }
 
+  // 🔒 UPDATE PASSWORD
+  async updatePassword(data : any){
+    const user = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    })
+    
+    if(!user){
+      throw new BadRequestException('User not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      data.old_password,
+      user.password
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid old password');
+    }
+
+    const hashedPassword = await bcrypt.hash(data.new_password, 10);
+
+    await this.prisma.user.update({
+      where: { email: data.email },
+      data: { password: hashedPassword },
+    });
+
+    return{
+      message: "Password updated successfully"
+    }
+  }
+
 }
