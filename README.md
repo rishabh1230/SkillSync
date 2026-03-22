@@ -24,6 +24,8 @@ flowchart TD
     Gateway --> Project
     Gateway --> Chat
     Gateway --> Hackathon
+    Gateway --> Payments
+    Gateway --> Cources
 
     User --> Notification
     Project --> Notification
