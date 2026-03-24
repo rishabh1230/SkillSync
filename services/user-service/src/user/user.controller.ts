@@ -1,21 +1,26 @@
-import { Controller, Post, Get, Patch, Body, Param } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body } from '@nestjs/common';
+import { EventPattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 
-@Controller('users')
+@Controller()
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Post()
-  create(@Body() body: any) {
-    return this.userService.create(body);
+  // 🔥 RabbitMQ event listener
+  @EventPattern('user_created')
+  async handleUserCreated(@Payload() data: any) {
+    console.log('Event received:', data);
+    return this.userService.create(data);
   }
 
-  @Get(':userId')
+  // ✅ Keep for fetching
+  @Get('users/:userId')
   get(@Param('userId') userId: string) {
     return this.userService.findOne(Number(userId));
   }
 
-  @Patch(':userId')
+  // ✅ Keep for updating
+  @Patch('users/:userId')
   update(@Param('userId') userId: string, @Body() body: any) {
     return this.userService.update(Number(userId), body);
   }
