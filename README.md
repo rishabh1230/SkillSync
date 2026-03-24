@@ -330,7 +330,7 @@ frontend/
 
 ## ⚙️ Tech Stack
 
-- Backend: Node.js, Express  
+- Backend: Nest js  
 - Frontend: React  
 - Database: MongoDB / PostgreSQL  
 - Message Broker: Kafka / RabbitMQ  
