@@ -5,6 +5,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { RmqModule } from '../rmq/rmq.module';
 
+
 @Module({
   imports: [
     RmqModule,

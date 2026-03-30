@@ -1,0 +1,54 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db{
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Project {
+    id            String  @id @default(uuid())
+    userId        String
+    description   String  @db.Text
+    tagline       String?
+    category      String?
+    tags          String[]  @default([])
+    status        ProjectStatus  @default(DRAFT)
+
+    youtubeUrl    String?
+    driveLinks    DriveLink[]
+
+    demoUrl       String?
+    githubUrl     String?
+    coverImage    String?
+
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+    publishedAt   DateTime?
+
+    @@index([userId])
+    @@index([status])
+    @@index([createdAt(sort: Desc)])
+    @@map("projects")
+}
+
+model DriveLink {
+    id           String    @id  @default(uuid())
+    projectId    String
+    project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    url          String
+    fileName     String?
+    fileType     String?
+    createdAt    DateTime  @default(now())
+
+    @@index([projectId])
+    @@map("drive_links")
+}
+
+
+enum ProjectStatus {
+    DRAFT
+    PUBLISHED
+    ARCHIVED
+}
