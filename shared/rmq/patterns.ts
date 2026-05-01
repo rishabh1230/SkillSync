@@ -1,0 +1,5 @@
+export const RMQ_PATTERNS = {
+  USER_CREATED: 'user_created',
+  AUTH_VALIDATE_TOKEN: 'AUTH_VALIDATE_TOKEN',
+  AUTH_LOGIN: 'AUTH_LOGIN',
+};

@@ -1,23 +1,20 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ProjectsService } from './projects.service';
-import { ProjectsController } from './projects.controller';
+
+import { ProjectService } from './project.service';
+import { ProjectController } from './project.controller';
+
+import { PrismaModule } from '../prisma/prisma.module';
 import { rabbitMQConfig } from '../config/rabbitmq.config';
+
+import { AuthClient } from '../auth/auth.client';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Module({
   imports: [
+    PrismaModule, // ✅ DB access
+
     ClientsModule.register([
-      {
-        name: 'USER_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: rabbitMQConfig.urls,
-          queue: 'user_queue',
-          queueOptions: {
-            durable: true,
-          },
-        },
-      },
       {
         name: 'AUTH_SERVICE',
         transport: Transport.RMQ,
@@ -31,7 +28,13 @@ import { rabbitMQConfig } from '../config/rabbitmq.config';
       },
     ]),
   ],
-  controllers: [ProjectsController],
-  providers: [ProjectsService],
+
+  controllers: [ProjectController],
+
+  providers: [
+    ProjectService,
+    AuthClient,     // ✅ REQUIRED for JWT validation
+    JwtAuthGuard,   // ✅ REQUIRED for route protection
+  ],
 })
 export class ProjectsModule {}

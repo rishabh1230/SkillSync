@@ -7,12 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Profile {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique
-  username  String   @unique
-  phone_no  String   @unique
-  bio       String?
-  avatar    String?
+model User {
+  id        String   @id @default(uuid())
+  authId    String   @unique
+  email     String
+  username  String
+  phone_no  String?
   createdAt DateTime @default(now())
 }

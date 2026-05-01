@@ -28,8 +28,8 @@ async function bootstrap() {
   app.enableCors();
   
   await app.startAllMicroservices();
-  await app.listen(3002); // Different port from other services
+  await app.listen(process.env.PORT || 3003); // Different port from other services
   
-  console.log('Project Service is running on port 3002');
+  console.log('Project Service is running on port 3003');
 }
 bootstrap();

@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { RmqModule } from '../rmq/rmq.module';
+import { AuthListener } from '../rmq/auth.listener';
 
 
 @Module({
@@ -15,7 +16,7 @@ import { RmqModule } from '../rmq/rmq.module';
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, AuthListener],
   providers: [AuthService],
 })
 export class AuthModule {}
