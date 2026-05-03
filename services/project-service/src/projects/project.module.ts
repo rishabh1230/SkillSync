@@ -9,6 +9,8 @@ import { rabbitMQConfig } from '../config/rabbitmq.config';
 
 import { AuthClient } from '../auth/auth.client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ProjectListener } from './project.listener';
+import { UserClient } from '../user/user.client';
 
 @Module({
   imports: [
@@ -26,15 +28,24 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
           },
         },
       },
+      {
+  name: 'USER_SERVICE',
+  transport: Transport.RMQ,
+  options: {
+    urls: ['amqp://localhost:5672'],
+    queue: 'user_queue',
+  },
+},
     ]),
   ],
 
-  controllers: [ProjectController],
+  controllers: [ProjectController , ProjectListener],
 
   providers: [
     ProjectService,
     AuthClient,     // ✅ REQUIRED for JWT validation
     JwtAuthGuard,   // ✅ REQUIRED for route protection
+    UserClient,
   ],
 })
 export class ProjectsModule {}
