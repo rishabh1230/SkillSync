@@ -12,16 +12,38 @@ model Project {
   title       String
   description String   @db.Text
 
-  ownerId     String   // comes from auth-service (JWT)
+  ownerId     String
 
   status      ProjectStatus @default(DRAFT)
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  members     ProjectMember[]   // ✅ ADD THIS
+
   @@index([ownerId])
   @@index([status])
   @@map("projects")
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  role      ProjectRole
+  createdAt DateTime @default(now())
+
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@unique([projectId, userId])
+  @@index([userId])
+  @@map("project_members")
+}
+
+enum ProjectRole {
+  OWNER
+  ADMIN
+  MEMBER
 }
 
 enum ProjectStatus {

@@ -3,18 +3,23 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { ProjectService } from './project.service';
 import { ProjectController } from './project.controller';
+import { ProjectListener } from './project.listener';
 
 import { PrismaModule } from '../prisma/prisma.module';
 import { rabbitMQConfig } from '../config/rabbitmq.config';
 
 import { AuthClient } from '../auth/auth.client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ProjectListener } from './project.listener';
 import { UserClient } from '../user/user.client';
+
+import { ProjectMemberModule } from '../project-member/project-member.module';
 
 @Module({
   imports: [
-    PrismaModule, // ✅ DB access
+    PrismaModule,
+
+    // ✅ FIX: properly import member module
+    ProjectMemberModule,
 
     ClientsModule.register([
       {
@@ -29,23 +34,24 @@ import { UserClient } from '../user/user.client';
         },
       },
       {
-  name: 'USER_SERVICE',
-  transport: Transport.RMQ,
-  options: {
-    urls: ['amqp://localhost:5672'],
-    queue: 'user_queue',
-  },
-},
+        name: 'USER_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672'],
+          queue: 'user_queue',
+        },
+      },
     ]),
   ],
 
-  controllers: [ProjectController , ProjectListener],
+  controllers: [ProjectController, ProjectListener],
 
   providers: [
     ProjectService,
-    AuthClient,     // ✅ REQUIRED for JWT validation
-    JwtAuthGuard,   // ✅ REQUIRED for route protection
+    AuthClient,
+    JwtAuthGuard,
     UserClient,
+    // ❌ REMOVE ProjectMemberService from here
   ],
 })
 export class ProjectsModule {}

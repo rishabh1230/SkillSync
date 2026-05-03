@@ -4,20 +4,34 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ProjectMemberService } from '../project-member/project-member.service';
+import { ProjectRole } from '@prisma/client';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private projectMemberService: ProjectMemberService,
+  ) {}
 
-  // ✅ Create
+  // ✅ Create Project + OWNER membership
   async createProject(data: {
     title: string;
     description: string;
     ownerId: string;
   }) {
-    return this.prisma.project.create({
+    const project = await this.prisma.project.create({
       data,
     });
+
+    // 🔥 CRITICAL: add owner as member
+    await this.projectMemberService.addMember(
+      project.id,
+      data.ownerId,
+      ProjectRole.OWNER,
+    );
+
+    return project;
   }
 
   // ✅ Get all (optionally by owner)
@@ -38,17 +52,17 @@ export class ProjectService {
     return project;
   }
 
-  // 🔒 Update (owner only)
+  // 🔐 Update (OWNER or ADMIN)
   async updateProject(
     id: string,
-    ownerId: string,
+    userId: string,
     data: { title?: string; description?: string },
   ) {
-    const project = await this.getProjectById(id);
-
-    if (project.ownerId !== ownerId) {
-      throw new ForbiddenException('Not allowed');
-    }
+    await this.projectMemberService.validateAccess(
+      id,
+      userId,
+      [ProjectRole.OWNER, ProjectRole.ADMIN],
+    );
 
     return this.prisma.project.update({
       where: { id },
@@ -56,13 +70,13 @@ export class ProjectService {
     });
   }
 
-  // 🔒 Delete (owner only)
-  async deleteProject(id: string, ownerId: string) {
-    const project = await this.getProjectById(id);
-
-    if (project.ownerId !== ownerId) {
-      throw new ForbiddenException('Not allowed');
-    }
+  // 🔐 Delete (ONLY OWNER)
+  async deleteProject(id: string, userId: string) {
+    await this.projectMemberService.validateAccess(
+      id,
+      userId,
+      [ProjectRole.OWNER],
+    );
 
     return this.prisma.project.delete({
       where: { id },
