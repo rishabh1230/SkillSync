@@ -1,5 +1,8 @@
-// project-member.service.ts
-import { Injectable, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProjectRole } from '@prisma/client';
 
@@ -7,21 +10,36 @@ import { ProjectRole } from '@prisma/client';
 export class ProjectMemberService {
   constructor(private prisma: PrismaService) {}
 
-  // ✅ Add member
-  async addMember(projectId: string, userId: string, role: ProjectRole) {
+  // ✅ Add member (safe)
+  async addMember(
+    projectId: string,
+    userId: string,
+    role: ProjectRole,
+  ) {
+    // 🔍 check if already exists
+    const existing = await this.prisma.projectMember.findUnique({
+      where: {
+        projectId_userId: { projectId, userId },
+      },
+    });
+
+    if (existing) {
+      throw new BadRequestException(
+        'User is already a member of this project',
+      );
+    }
+
     return this.prisma.projectMember.create({
       data: { projectId, userId, role },
     });
   }
 
-  // ✅ Get all members
   async getMembers(projectId: string) {
     return this.prisma.projectMember.findMany({
       where: { projectId },
     });
   }
 
-  // ✅ Get specific membership (IMPORTANT)
   async getMembership(projectId: string, userId: string) {
     return this.prisma.projectMember.findUnique({
       where: {
@@ -30,8 +48,11 @@ export class ProjectMemberService {
     });
   }
 
-  // ✅ Update role
-  async updateRole(projectId: string, userId: string, role: ProjectRole) {
+  async updateRole(
+    projectId: string,
+    userId: string,
+    role: ProjectRole,
+  ) {
     return this.prisma.projectMember.update({
       where: {
         projectId_userId: { projectId, userId },
@@ -40,7 +61,6 @@ export class ProjectMemberService {
     });
   }
 
-  // ✅ Remove member
   async removeMember(projectId: string, userId: string) {
     const member = await this.getMembership(projectId, userId);
 
@@ -59,18 +79,26 @@ export class ProjectMemberService {
     });
   }
 
-  // 🔐 RBAC CHECK (CRITICAL)
-  async validateAccess(
-    projectId: string,
-    userId: string,
-    allowedRoles: ProjectRole[],
-  ) {
-    const membership = await this.getMembership(projectId, userId);
+  // 🔐 RBAC
+ async validateAccess(
+  projectId: string,
+  userId: string,
+  allowedRoles: ProjectRole[],
+) {
+  const membership = await this.getMembership(projectId, userId);
 
-    if (!membership || !allowedRoles.includes(membership.role)) {
-      throw new ForbiddenException('Access denied');
-    }
+  // 🔥 ADD THIS DEBUG LOG
+  console.log('🔍 Membership check:', {
+    projectId,
+    userId,
+    membership,
+    allowedRoles,
+  });
 
-    return membership;
+  if (!membership || !allowedRoles.includes(membership.role)) {
+    throw new ForbiddenException('Access denied');
   }
+
+  return membership;
+}
 }
