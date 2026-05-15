@@ -1,5 +1,5 @@
 export const rabbitMQConfig = {
-  urls: [process.env.RABBITMQ_URL || 'amqp://localhost:5672'],
+  urls: [process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672'],
   queue: 'project_queue',
   queueOptions: {
     durable: true,

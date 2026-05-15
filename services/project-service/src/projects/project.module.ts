@@ -37,7 +37,7 @@ import { ProjectMemberModule } from '../project-member/project-member.module';
         name: 'USER_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
+          urls: [process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672' ],
           queue: 'user_queue',
         },
       },
