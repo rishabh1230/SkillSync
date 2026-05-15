@@ -1,71 +1,145 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Plus, Folder, LayoutGrid, Clock, MoreVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api';
+import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 interface Project {
   id: string;
-  title: string;
+  name: string;
   description: string;
-  status: string;
+  createdAt: string;
+  status?: string;
 }
 
+const containerVars = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
+
+const itemVars = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+};
+
 const Dashboard: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const { token } = useAuth();
   const navigate = useNavigate();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const { data } = await api.get('/projects');
-        setProjects(data);
+        const res = await api.get('/projects', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setProjects(Array.isArray(res.data) ? res.data : (res.data?.data || []));
       } catch (error) {
-        if (error.response?.status === 401) {
-          navigate('/login');
-        }
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProjects();
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+  }, [token]);
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-12">
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+    <div className="container">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="h1 flex items-center gap-3">
+            <LayoutGrid color="var(--accent-primary)" />
             Dashboard
           </h1>
-          <button onClick={handleLogout} className="btn-primary bg-gradient-to-r from-red-500 to-red-600">
-            Logout
-          </button>
-        </header>
-
-        <section>
-          <h2 className="text-2xl font-semibold mb-6 text-gray-200">Your Projects</h2>
-          {projects.length === 0 ? (
-            <div className="card text-center p-12">
-              <p className="text-gray-400 mb-4">No projects found. Ready to start something new?</p>
-              <button className="btn-primary">Create Project</button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project) => (
-                <div key={project.id} className="card hover:-translate-y-2 cursor-pointer">
-                  <h3 className="text-xl font-bold mb-2 text-white">{project.title}</h3>
-                  <p className="text-gray-400 mb-4 line-clamp-3">{project.description}</p>
-                  <span className="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium">
-                    {project.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+          <p className="text-secondary" style={{ marginTop: '0.25rem' }}>
+            Manage your active projects and tasks.
+          </p>
+        </div>
+        <button className="btn btn-primary" onClick={() => navigate('/create-project')}>
+          <Plus size={20} />
+          New Project
+        </button>
       </div>
+
+      {/* Content */}
+      {loading ? (
+        <div className="flex justify-center items-center" style={{ height: '16rem', color: 'var(--text-secondary)' }}>
+          Loading your workspace...
+        </div>
+      ) : projects.length === 0 ? (
+        <div
+          className="glass-panel flex flex-col items-center justify-center text-center"
+          style={{ minHeight: '400px', padding: '3rem' }}
+        >
+          <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '50%', marginBottom: '1.5rem' }}>
+            <Folder size={48} color="var(--text-muted)" />
+          </div>
+          <h2 className="h2" style={{ marginBottom: '0.5rem' }}>No projects yet</h2>
+          <p className="text-secondary" style={{ marginBottom: '1.5rem', maxWidth: '400px' }}>
+            Get started by creating your first project to organize your work and collaborate with your team.
+          </p>
+          <button className="btn btn-primary" onClick={() => navigate('/create-project')}>
+            <Plus size={20} />
+            Create Project
+          </button>
+        </div>
+      ) : (
+        <motion.div
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}
+          variants={containerVars}
+          initial="hidden"
+          animate="show"
+        >
+          {projects.map((project) => (
+            <motion.div
+              key={project.id}
+              variants={itemVars}
+              className="glass-panel flex flex-col"
+              style={{ padding: '1.5rem' }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div style={{ backgroundColor: 'var(--accent-glow)', padding: '0.75rem', borderRadius: 'var(--radius-md)' }}>
+                  <Folder size={24} color="var(--accent-primary)" />
+                </div>
+                <button className="btn btn-secondary" style={{ padding: '0.4rem', border: 'none' }}>
+                  <MoreVertical size={18} color="var(--text-muted)" />
+                </button>
+              </div>
+
+              <h3 className="h3" style={{ marginBottom: '0.5rem' }}>{project.name || 'Untitled Project'}</h3>
+              <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: '1.5rem', flex: 1 }}>
+                {project.description || 'No description provided.'}
+              </p>
+
+              <div
+                className="flex justify-between items-center"
+                style={{ borderTop: '1px solid var(--border-light)', paddingTop: '1rem' }}
+              >
+                <span className="flex items-center gap-1" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <Clock size={14} />
+                  {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : 'N/A'}
+                </span>
+                <span
+                  style={{
+                    backgroundColor: 'var(--bg-secondary)',
+                    padding: '0.2rem 0.6rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    color: 'var(--success)'
+                  }}
+                >
+                  {project.status || 'DRAFT'}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
     </div>
   );
 };

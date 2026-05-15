@@ -1,56 +1,81 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../api';
+import { motion } from 'framer-motion';
+import { LogIn } from 'lucide-react';
+import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { data } = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', data.accessToken);
+      const response = await api.post('/auth/login', { email, password });
+      login(response.data.access_token);
       navigate('/dashboard');
-    } catch (error) {
-      alert('Login failed. Please check credentials.');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Login failed');
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="card w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-8">
-          Welcome Back
-        </h2>
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+    <div className="flex h-screen w-full items-center justify-center">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="glass-panel"
+        style={{ padding: '3rem', width: '100%', maxWidth: '400px' }}
+      >
+        <div className="flex flex-col items-center mb-8">
+          <div style={{ backgroundColor: 'var(--accent-glow)', padding: '1rem', borderRadius: '50%', marginBottom: '1rem' }}>
+            <LogIn size={32} color="var(--accent-primary)" />
+          </div>
+          <h1 className="h2 text-center">Welcome Back</h1>
+          <p className="text-secondary text-center">Sign in to your account</p>
+        </div>
+
+        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+          <div className="input-group">
+            <label className="input-label">Email</label>
             <input 
               type="email" 
               className="input-field" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
               required 
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+          <div className="input-group">
+            <label className="input-label">Password</label>
             <input 
               type="password" 
               className="input-field" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
               required 
             />
           </div>
-          <button type="submit" className="btn-primary w-full">Sign In</button>
+          
+          {error && <p className="error-text text-center mt-4">{error}</p>}
+
+          <button type="submit" className="btn btn-primary mt-4 w-full">
+            Sign In
+          </button>
         </form>
-        <p className="mt-6 text-center text-gray-400">
-          Don't have an account? <Link to="/register" className="text-primary hover:underline">Register</Link>
+
+        <p className="text-center text-secondary mt-8">
+          Don't have an account?{' '}
+          <Link to="/register">Sign up</Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 };

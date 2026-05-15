@@ -32,6 +32,42 @@ export class ProjectsController {
     );
   }
 
+  // ✅ Get All My Projects
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getAll(@Req() req) {
+    return firstValueFrom(
+      this.client.send('project.getAll', { user: req.user }),
+    );
+  }
+
+  // ✅ Get One Project
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getOne(@Param('id') id: string, @Req() req) {
+    return firstValueFrom(
+      this.client.send('project.getOne', { projectId: id, user: req.user }),
+    );
+  }
+
+  // ✅ Update Project
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async update(@Param('id') id: string, @Req() req, @Body() body: any) {
+    return firstValueFrom(
+      this.client.send('project.update', { projectId: id, body, user: req.user }),
+    );
+  }
+
+  // ✅ Delete Project
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async delete(@Param('id') id: string, @Req() req) {
+    return firstValueFrom(
+      this.client.send('project.delete', { projectId: id, user: req.user }),
+    );
+  }
+
   // =========================
   // 👥 PROJECT MEMBERS APIs
   // =========================

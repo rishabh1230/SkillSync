@@ -1,13 +1,47 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { ProjectService } from './project.service';
 import { ProjectMemberService } from '../project-member/project-member.service';
 import { ProjectRole } from '@prisma/client';
 
 @Controller()
 export class ProjectListener {
   constructor(
+    private readonly projectService: ProjectService,
     private readonly memberService: ProjectMemberService,
   ) {}
+
+  // ✅ Create Project
+  @MessagePattern('project.create')
+  async create(@Payload() data: any) {
+    const { body, user } = data;
+    return this.projectService.createProject({ ...body, ownerId: user.sub });
+  }
+
+  // ✅ Get My Projects
+  @MessagePattern('project.getAll')
+  async getAll(@Payload() data: any) {
+    return this.projectService.getProjects(data.user.sub);
+  }
+
+  // ✅ Get One Project
+  @MessagePattern('project.getOne')
+  async getOne(@Payload() data: any) {
+    return this.projectService.getProjectById(data.projectId);
+  }
+
+  // ✅ Update Project
+  @MessagePattern('project.update')
+  async update(@Payload() data: any) {
+    const { projectId, body, user } = data;
+    return this.projectService.updateProject(projectId, user.sub, body);
+  }
+
+  // ✅ Delete Project
+  @MessagePattern('project.delete')
+  async delete(@Payload() data: any) {
+    return this.projectService.deleteProject(data.projectId, data.user.sub);
+  }
 
   // ✅ Add Member
   @MessagePattern('project.addMember')
