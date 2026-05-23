@@ -8,8 +8,8 @@ const Sidebar: React.FC = () => {
 
   return (
     <aside className="sidebar">
-      <div className="mb-8">
-        <h2 className="h2 text-center" style={{ color: 'var(--accent-primary)' }}>SkillSync</h2>
+      <div className="mb-8 flex justify-center">
+        <img src="/logo.jpeg" alt="SkillSync Logo" style={{ height: '40px', objectFit: 'contain' }} />
       </div>
 
       <nav className="flex flex-col gap-2" style={{ flex: 1 }}>

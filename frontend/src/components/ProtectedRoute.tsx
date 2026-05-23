@@ -4,7 +4,15 @@ import { useAuth } from '../context/AuthContext';
 import Sidebar from './Sidebar';
 
 const ProtectedRoute: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isInitializing } = useAuth();
+
+  if (isInitializing) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-primary">
+        <div className="w-12 h-12 border-4 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

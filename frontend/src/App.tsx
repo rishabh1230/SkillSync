@@ -7,6 +7,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import CreateProject from './pages/CreateProject';
+import ProjectDetails from './pages/ProjectDetails';
+import EditProject from './pages/EditProject';
 
 const App: React.FC = () => {
   return (
@@ -22,6 +24,8 @@ const App: React.FC = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/create-project" element={<CreateProject />} />
+            <Route path="/projects/:id" element={<ProjectDetails />} />
+            <Route path="/projects/:id/edit" element={<EditProject />} />
           </Route>
 
           {/* Catch-all */}

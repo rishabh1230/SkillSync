@@ -19,6 +19,8 @@ export class ProjectService {
     title: string;
     description: string;
     ownerId: string;
+    videoLink?: string;
+    images?: string[];
   }) {
     const project = await this.prisma.project.create({
       data,
@@ -56,7 +58,7 @@ export class ProjectService {
   async updateProject(
     id: string,
     userId: string,
-    data: { title?: string; description?: string },
+    data: { title?: string; description?: string; videoLink?: string; images?: string[] },
   ) {
     await this.projectMemberService.validateAccess(
       id,

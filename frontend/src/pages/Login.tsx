@@ -33,10 +33,7 @@ const Login: React.FC = () => {
         style={{ padding: '3rem', width: '100%', maxWidth: '400px' }}
       >
         <div className="flex flex-col items-center mb-8">
-          <div style={{ backgroundColor: 'var(--accent-glow)', padding: '1rem', borderRadius: '50%', marginBottom: '1rem' }}>
-            <LogIn size={32} color="var(--accent-primary)" />
-          </div>
-          <h1 className="h2 text-center">Welcome Back</h1>
+          <img src="/logo.jpeg" alt="SkillSync Logo" style={{ height: '60px', objectFit: 'contain', marginBottom: '1.5rem' }} />
           <p className="text-secondary text-center">Sign in to your account</p>
         </div>
 

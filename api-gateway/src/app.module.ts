@@ -2,9 +2,11 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthController } from './auth/auth.controller';
 import { ProjectsController } from './projects/projects.controller';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
+    S3Module,
     ClientsModule.register([
       {
         name: 'PROJECT_SERVICE',

@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Rocket, FileText, AlignLeft, Tags, Image as ImageIcon, Video, UploadCloud } from 'lucide-react';
+import { Rocket, FileText, AlignLeft, Tags, Image as ImageIcon, Video, UploadCloud, ArrowLeft } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import MDEditor from '@uiw/react-md-editor';
 
-const CreateProject: React.FC = () => {
-  const { token } = useAuth();
+const EditProject: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const { token, user } = useAuth();
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
@@ -19,8 +20,33 @@ const CreateProject: React.FC = () => {
   });
   
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const { data } = await api.get(`/projects/${id}`);
+        if (data.ownerId !== user?.id) {
+          navigate('/dashboard'); // Unauthorized
+          return;
+        }
+        setFormData({
+          title: data.title || '',
+          description: data.description || '',
+          status: data.status || 'DRAFT',
+          videoLink: data.videoLink || '',
+          images: data.images || []
+        });
+      } catch (err) {
+        setError('Failed to load project details.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (user) fetchProject();
+  }, [id, user, navigate]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -35,7 +61,6 @@ const CreateProject: React.FC = () => {
         const formDataPayload = new FormData();
         formDataPayload.append('file', file);
         
-        // Upload directly to our API Gateway
         const { data } = await api.post('/projects/upload', formDataPayload, {
           headers: { 
             Authorization: `Bearer ${token}`
@@ -53,7 +78,7 @@ const CreateProject: React.FC = () => {
 
     } catch (err) {
       console.error('Image upload failed', err);
-      setError('Failed to upload image(s). Please try again.');
+      alert('Failed to upload image(s).');
     } finally {
       setUploadingImage(false);
     }
@@ -61,20 +86,22 @@ const CreateProject: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     setError('');
     
     try {
-      await api.post('/projects', formData, {
+      await api.patch(`/projects/${id}`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      navigate('/dashboard');
+      navigate(`/projects/${id}`);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create project');
+      setError(err.response?.data?.message || 'Failed to update project');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) return <div className="container mt-12 text-center">Loading...</div>;
 
   return (
     <motion.div 
@@ -82,13 +109,20 @@ const CreateProject: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       className="container pb-12"
     >
+      <button 
+        onClick={() => navigate(-1)} 
+        className="flex items-center gap-2 text-secondary hover:text-white mb-6 transition-colors"
+      >
+        <ArrowLeft size={20} /> Back to Project
+      </button>
+
       <div className="mb-8 flex items-center gap-4">
         <div style={{ backgroundColor: 'var(--accent-glow)', padding: '1rem', borderRadius: '50%' }}>
           <Rocket size={32} color="var(--accent-primary)" />
         </div>
         <div>
-          <h1 className="h1">Create New Project</h1>
-          <p className="text-secondary">Launch your next big idea today.</p>
+          <h1 className="h1">Edit Project</h1>
+          <p className="text-secondary">Update your project details and media.</p>
         </div>
       </div>
 
@@ -103,7 +137,6 @@ const CreateProject: React.FC = () => {
             <input 
               type="text" 
               className="input-field" 
-              placeholder="E.g., SkillSync Rebrand"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
               required 
@@ -113,12 +146,11 @@ const CreateProject: React.FC = () => {
           <div className="input-group">
             <label className="input-label flex items-center gap-2">
               <Video size={16} />
-              Hero Video Link (YouTube, Vimeo, etc.)
+              Hero Video Link
             </label>
             <input 
               type="url" 
               className="input-field" 
-              placeholder="https://www.youtube.com/watch?v=..."
               value={formData.videoLink}
               onChange={(e) => setFormData({...formData, videoLink: e.target.value})}
             />
@@ -146,7 +178,6 @@ const CreateProject: React.FC = () => {
             
             <div className="border-dashed border-2 border-slate-600 rounded-lg p-6 text-center hover:bg-slate-800 transition-colors duration-200">
               <UploadCloud size={32} className="mx-auto mb-2 text-slate-400" />
-              <p className="text-slate-300 mb-4">Drag & drop images here, or click to select files</p>
               <input 
                 type="file" 
                 multiple 
@@ -154,10 +185,10 @@ const CreateProject: React.FC = () => {
                 onChange={handleImageUpload}
                 disabled={uploadingImage}
                 style={{ display: 'none' }}
-                id="image-upload"
+                id="edit-image-upload"
               />
-              <label htmlFor="image-upload" className="btn btn-secondary cursor-pointer">
-                {uploadingImage ? 'Uploading...' : 'Browse Images'}
+              <label htmlFor="edit-image-upload" className="btn btn-secondary cursor-pointer">
+                {uploadingImage ? 'Uploading...' : 'Browse New Images'}
               </label>
             </div>
             
@@ -168,7 +199,7 @@ const CreateProject: React.FC = () => {
                     <img src={img} alt={`Uploaded ${i}`} className="object-cover w-full h-full" />
                     <button 
                       type="button"
-                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs"
+                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs shadow-lg hover:bg-red-700"
                       onClick={() => setFormData(prev => ({...prev, images: prev.images.filter((_, idx) => idx !== i)}))}
                     >
                       ×
@@ -201,16 +232,16 @@ const CreateProject: React.FC = () => {
             <button 
               type="button" 
               className="btn btn-secondary"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate(`/projects/${id}`)}
             >
               Cancel
             </button>
             <button 
               type="submit" 
               className="btn btn-primary"
-              disabled={loading || !formData.title || uploadingImage}
+              disabled={saving || !formData.title || uploadingImage}
             >
-              {loading ? 'Creating...' : 'Create Project'}
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
 
@@ -220,4 +251,4 @@ const CreateProject: React.FC = () => {
   );
 };
 
-export default CreateProject;
+export default EditProject;

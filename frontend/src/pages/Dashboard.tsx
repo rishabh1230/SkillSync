@@ -97,20 +97,21 @@ const Dashboard: React.FC = () => {
             <motion.div
               key={project.id}
               variants={itemVars}
-              className="glass-panel flex flex-col"
+              className="glass-panel flex flex-col cursor-pointer"
               style={{ padding: '1.5rem' }}
-              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              whileHover={{ y: -5, transition: { duration: 0.2 }, boxShadow: 'var(--shadow-glow)' }}
+              onClick={() => navigate(`/projects/${project.id}`)}
             >
               <div className="flex justify-between items-start mb-4">
                 <div style={{ backgroundColor: 'var(--accent-glow)', padding: '0.75rem', borderRadius: 'var(--radius-md)' }}>
                   <Folder size={24} color="var(--accent-primary)" />
                 </div>
-                <button className="btn btn-secondary" style={{ padding: '0.4rem', border: 'none' }}>
+                <button className="btn btn-secondary" style={{ padding: '0.4rem', border: 'none' }} onClick={(e) => { e.stopPropagation(); /* Add menu logic later */ }}>
                   <MoreVertical size={18} color="var(--text-muted)" />
                 </button>
               </div>
 
-              <h3 className="h3" style={{ marginBottom: '0.5rem' }}>{project.name || 'Untitled Project'}</h3>
+              <h3 className="h3" style={{ marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{project.name || 'Untitled Project'}</h3>
               <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: '1.5rem', flex: 1 }}>
                 {project.description || 'No description provided.'}
               </p>

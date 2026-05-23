@@ -9,16 +9,29 @@ import {
   UseGuards,
   Req,
   Param,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { S3Service } from '../s3/s3.service';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(
     @Inject('PROJECT_SERVICE') private client: ClientProxy,
+    private s3Service: S3Service,
   ) {}
+
+  // ✅ Upload Image directly via API Gateway
+  @UseGuards(JwtAuthGuard)
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return this.s3Service.uploadFile(file);
+  }
 
   // ✅ Create Project
   @UseGuards(JwtAuthGuard)

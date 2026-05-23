@@ -44,6 +44,15 @@ export class CreateProjectDto {
   @IsUrl()
   @IsOptional()
   githubUrl?: string;
+
+  @IsUrl()
+  @IsOptional()
+  videoLink?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  images?: string[];
 }
 
 export class CreateDriveLinkDto {
