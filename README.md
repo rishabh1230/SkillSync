@@ -1,3 +1,4 @@
+
 <div align="center">
   <img src="./frontend/public/logo.jpeg" alt="SkillSync Logo" width="120" style="border-radius: 20px; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4); margin-bottom: 20px;" />
 
@@ -21,6 +22,8 @@
 ---
 
 ## 📖 Overview
+<img width="1902" height="874" alt="Screenshot 2026-05-23 235657" src="https://github.com/user-attachments/assets/6df5cf61-5b60-47f9-b81a-2e5b3f892e31" />
+<img width="1911" height="874" alt="Screenshot 2026-05-23 230615" src="https://github.com/user-attachments/assets/d2c1e5ee-ef8d-4b8d-8541-f5ae3e65bcd2" />
 
 **SkillSync** is a highly scalable, distributed ecosystem engineered to orchestrate hackathons, facilitate team collaboration, and manage complex project lifecycles. 
 
