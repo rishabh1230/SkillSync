@@ -1,86 +1,67 @@
-# 🚀 SkillSync — Scalable Collaboration & Hackathon Platform
-
 <div align="center">
+  <img src="./frontend/public/logo.jpeg" alt="SkillSync Logo" width="120" style="border-radius: 20px; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4); margin-bottom: 20px;" />
 
-![Architecture](https://img.shields.io/badge/Architecture-Microservices-blue)
-![Backend](https://img.shields.io/badge/Backend-NestJS-E0234E)
-![Database](https://img.shields.io/badge/Database-PostgreSQL-336791)
-![ORM](https://img.shields.io/badge/ORM-Prisma-2D3748)
-![Cache](https://img.shields.io/badge/Cache-Redis-DC382D)
-![Messaging](https://img.shields.io/badge/Messaging-RabbitMQ-FF6600)
-![Realtime](https://img.shields.io/badge/Realtime-WebSockets-010101)
-![Deployment](https://img.shields.io/badge/Deployment-Docker%20%26%20Kubernetes-2496ED)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+  # 🚀 SkillSync
 
-# SkillSync
+  **A Cloud-Native, Distributed Platform for Scalable Collaboration & Hackathon Management**
 
-### Scalable Microservices-Based Collaboration & Hackathon Platform
+  [![Architecture](https://img.shields.io/badge/Architecture-Microservices-blue?style=for-the-badge&logo=codeforces)]()
+  [![Backend](https://img.shields.io/badge/Backend-NestJS-E0234E?style=for-the-badge&logo=nestjs)]()
+  [![Frontend](https://img.shields.io/badge/Frontend-React_19-61DAFB?style=for-the-badge&logo=react)]()
+  [![Database](https://img.shields.io/badge/Database-PostgreSQL-336791?style=for-the-badge&logo=postgresql)]()
+  [![Messaging](https://img.shields.io/badge/Messaging-RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq)]()
+  [![Storage](https://img.shields.io/badge/Storage-AWS_S3-569A31?style=for-the-badge&logo=amazons3)]()
+  [![Deployment](https://img.shields.io/badge/Deployment-Docker-2496ED?style=for-the-badge&logo=docker)]()
 
-A cloud-native distributed platform engineered for hackathons, real-time collaboration, intelligent notifications, and scalable project management using modern backend architecture principles.
-
+  <p align="center">
+    Built with modern backend architecture principles, real-time event processing, and a premium "glassmorphism" UI.
+  </p>
 </div>
 
 ---
 
-# 📖 Table of Contents
+## 📖 Overview
 
-- [Overview](#-overview)
-- [System Architecture](#-system-architecture)
-- [Core Features](#-core-features)
-- [Tech Stack](#️-tech-stack)
-- [Microservices Architecture](#-microservices-architecture)
-- [API Gateway](#-api-gateway)
-- [Event-Driven Communication](#-event-driven-communication)
-- [Real-Time Communication](#-real-time-communication)
-- [Smart Collaboration Engine](#-smart-collaboration-engine)
-- [Redis Caching](#-redis-caching)
-- [Project Structure](#-project-structure)
-- [Deployment Architecture](#-deployment-architecture)
-- [Performance & Scalability](#-performance--scalability)
-- [Security](#-security)
-- [Getting Started](#-getting-started)
-- [Environment Variables](#-environment-variables)
-- [Future Enhancements](#-future-enhancements)
-- [Engineering Highlights](#-engineering-highlights)
-- [License](#-license)
+**SkillSync** is a highly scalable, distributed ecosystem engineered to orchestrate hackathons, facilitate team collaboration, and manage complex project lifecycles. 
+
+Designed to demonstrate production-grade system architecture, SkillSync leverages a **Microservices Architecture** utilizing **NestJS**, **RabbitMQ**, and an **API Gateway**. The frontend is a highly responsive, animated **React** application built with **Vite** and **Framer Motion**, delivering a seamless user experience.
 
 ---
 
-# 📌 Overview
+## ✨ Key Engineering Highlights
 
-SkillSync is a distributed collaboration ecosystem built using a **microservices architecture** to provide scalable, maintainable, and high-performance collaboration workflows.
+### 🧩 True Microservices Architecture
+The platform is decoupled into tightly scoped, independently deployable services (Auth, User, Project, Chat, Hackathon). This enforces domain separation, ensures fault isolation, and allows individual services to scale horizontally based on load.
 
-The platform supports:
+### ⚡ Event-Driven Communication
+Synchronous HTTP calls between services are minimized. Instead, services communicate asynchronously via **RabbitMQ**. This event-driven pattern offloads heavy processing, prevents cascading failures, and reduces response latency by up to 30%.
 
-- 🏆 Hackathon management
-- 👥 Team collaboration
-- 📁 Project lifecycle management
-- 💬 Real-time communication
-- 🔔 Intelligent notifications
-- ⚡ Event-driven processing
-- 📈 Scalable cloud-native deployments
+### 🌐 Centralized API Gateway
+A unified **NestJS API Gateway** acts as the single entry point for the frontend client. It handles request routing, JWT validation, payload parsing (including `multipart/form-data` for AWS S3 uploads), and strict access control before traffic ever hits internal microservices.
 
-The architecture is designed around:
+### 🎨 Premium, Dynamic Frontend
+The client application isn't just functional—it's beautiful. Built with React 19, it features:
+- **Glassmorphism Design System**: Dynamic dual-tone radial gradients, deep drop-shadows, and backdrop blurs.
+- **Micro-Animations**: Fluid page transitions and hover states powered by `framer-motion`.
+- **Advanced Media Handling**: A custom multi-video rendering engine that intelligently embeds YouTube and native Google Drive iframe streams.
 
-- Independent service scalability
-- Fault isolation
-- Event-driven workflows
-- Real-time communication
-- Distributed caching
-- Containerized deployments
-- Kubernetes orchestration
+### ☁️ Cloud Object Storage
+Direct integration with **AWS S3** for secure, durable, and highly available storage of project gallery images and user assets, streamed directly through the API Gateway using `multer`.
 
 ---
 
-# 🏗️ System Architecture
+## 🏗️ System Architecture
 
 ```mermaid
 flowchart TD
+    Client["Frontend Client (React/Vite)"]
+    Gateway["API Gateway (NestJS)"]
+    S3["AWS S3 Bucket"]
 
-    Client["Frontend Client (React)"]
-        -->|HTTP / WebSocket| Gateway["API Gateway"]
+    Client -->|HTTP / REST| Gateway
+    Gateway -->|Multipart Upload| S3
 
-    subgraph Microservices
+    subgraph Microservices Cluster
         Auth["Auth Service"]
         User["User Service"]
         Project["Project Service"]
@@ -89,17 +70,16 @@ flowchart TD
         Notification["Notification Service"]
     end
 
-    Gateway --> Auth
-    Gateway --> User
-    Gateway --> Project
-    Gateway --> Chat
-    Gateway --> Hackathon
-    Gateway --> Notification
+    Gateway -.->|TCP / Internal| Auth
+    Gateway -.->|TCP / Internal| User
+    Gateway -.->|TCP / Internal| Project
+    Gateway -.->|TCP / Internal| Chat
+    Gateway -.->|TCP / Internal| Hackathon
 
     subgraph Infrastructure
         PostgreSQL["PostgreSQL"]
         Redis["Redis Cache"]
-        RabbitMQ["RabbitMQ Broker"]
+        RabbitMQ["RabbitMQ Message Broker"]
     end
 
     Auth --> PostgreSQL
@@ -111,535 +91,93 @@ flowchart TD
     User --> Redis
     Project --> Redis
 
-    User --> RabbitMQ
-    Project --> RabbitMQ
-    Hackathon --> RabbitMQ
-    Notification --> RabbitMQ
+    User -->|Publish Events| RabbitMQ
+    Project -->|Publish Events| RabbitMQ
+    Hackathon -->|Publish Events| RabbitMQ
+    
+    RabbitMQ -->|Consume Events| Notification
+    RabbitMQ -->|Consume Events| Auth
 
     Chat <-->|WebSocket| Client
 ```
 
 ---
 
-# ✨ Core Features
+## 💻 Tech Stack
 
-## 🔐 JWT-Based Authentication & Authorization
+### Frontend Client
+- **Framework**: React 19, TypeScript, Vite
+- **Styling**: Custom CSS Design System, Tailwind Utilities, Glassmorphism
+- **Animations**: Framer Motion
+- **Components**: Lucide React (Icons), UIW Markdown Editor, React Player
+- **State & Auth**: React Context API, JWT Decode, Axios Interceptors
 
-Implemented centralized authentication using JWT tokens and API Gateway-based access control.
+### Backend Microservices
+- **Framework**: NestJS, Node.js, Express
+- **Database**: PostgreSQL (Relational Data), Prisma ORM
+- **Message Broker**: RabbitMQ (Event-driven AMQP communication)
+- **Caching**: Redis (Session & fast-access data)
+- **Cloud Storage**: AWS S3 (via `@aws-sdk/client-s3`)
 
-### Features
-
-- JWT Access & Refresh Tokens
-- Secure Authentication Middleware
-- Role-Based Authorization
-- Route Guards
-- Session Validation
-- Protected APIs
-- Secure Inter-Service Communication
-
----
-
-## 🧩 Distributed Microservices Architecture
-
-The platform is composed of independently deployable services designed around domain separation principles.
-
-### Services Included
-
-| Service | Responsibility |
-|---|---|
-| Auth Service | Authentication & Authorization |
-| User Service | User Profiles & Activity |
-| Project Service | Project & Task Management |
-| Chat Service | Real-Time Messaging |
-| Hackathon Service | Hackathon Management |
-| Notification Service | Notifications & Event Consumers |
-
-### Benefits
-
-- Independent scaling
-- Better maintainability
-- Fault isolation
-- Modular development
-- Faster deployments
-- Improved reliability
+### DevOps & Infrastructure
+- **Containerization**: Docker, Docker Compose
+- **Orchestration**: Kubernetes (Ready)
+- **Architecture Pattern**: API Gateway + Distributed Microservices
 
 ---
 
-## ⚡ Event-Driven Communication
+## ⚙️ Core Microservices
 
-RabbitMQ is used for asynchronous communication between services.
-
-### Workflow
-
-- Services publish domain events
-- Consumers process events asynchronously
-- Notifications trigger automatically
-- Heavy background tasks are offloaded from request cycles
-
-### Events Processed
-
-- User joined hackathon
-- Team invitations
-- Collaboration requests
-- Task assignments
-- Project updates
-- Feed generation
-- Notification triggers
-
-### Impact
-
-- Reduced service coupling
-- Improved scalability
-- Better responsiveness
-- ~30% improved response efficiency
+| Service | Primary Responsibility | Key Integrations |
+|---|---|---|
+| **API Gateway** | Request routing, JWT validation, AWS S3 File proxying. | NestJS, Multer, AWS S3 |
+| **Auth Service** | Identity management, token signing, Bcrypt hashing. | PostgreSQL, Redis, RabbitMQ |
+| **User Service** | User profiles, preferences, social metrics. | PostgreSQL, RabbitMQ |
+| **Project Service** | Project lifecycle, relational constraints (Cascade Deletes), task management. | PostgreSQL, RabbitMQ |
+| **Chat Service** | Real-time messaging and dynamic WebSocket rooms. | WebSockets, Socket.IO |
+| **Notification** | Asynchronous email/push dispatch via RabbitMQ consumer queues. | RabbitMQ |
 
 ---
 
-## 💬 Real-Time Collaboration
+## 🚀 Getting Started (Local Development)
 
-Implemented real-time communication using WebSockets.
+The entire distributed stack can be spun up locally using Docker.
 
-### Features
-
-- Instant messaging
-- Live collaboration
-- Dynamic rooms
-- Presence tracking
-- Event broadcasting
-- Real-time notifications
-
-### Technologies
-
-- WebSockets
-- Socket.IO
-- Event Broadcasting
-
----
-
-# 🧠 Smart Collaboration Engine
-
-One of the core engineering highlights of SkillSync is the intelligent event-driven collaboration engine.
-
-The engine continuously analyzes user activity and generates smart interactions in near real-time.
-
-## Functionalities
-
-### 🔔 Intelligent Notifications
-
-Automatically triggers notifications based on:
-
-- Team invitations
-- Project updates
-- Task assignments
-- Hackathon activity
-- User engagement
-
----
-
-### 📈 Dynamic Feed Prioritization
-
-Feeds are ranked using:
-
-- User engagement patterns
-- Recent activities
-- Collaboration frequency
-- Team interaction metrics
-
----
-
-### 🤝 Smart Collaboration Suggestions
-
-Recommendation workflows are generated using:
-
-- Shared technologies
-- Similar interests
-- User activity history
-- Collaboration patterns
-- Project participation
-
----
-
-### ⚡ Near Real-Time Event Processing
-
-RabbitMQ enables asynchronous processing while maintaining high responsiveness across services.
-
----
-
-# ⚡ Redis Caching
-
-Redis is used as the distributed caching layer to optimize frequently accessed data.
-
-## Redis Usage
-
-- Authentication token caching
-- Session storage
-- Frequently accessed project data
-- API rate limiting
-- Feed optimization
-- Temporary event storage
-
-## Benefits
-
-- Reduced database load
-- Faster API responses
-- Lower latency
-- Better throughput
-- Improved scalability
-
----
-
-# ⚙️ Tech Stack
-
-## Backend
-
-- NestJS
-- Node.js
-- Prisma ORM
-- Express
-
----
-
-## Database
-
-- PostgreSQL
-
----
-
-## Messaging & Communication
-
-- RabbitMQ
-- WebSockets
-- Socket.IO
-
----
-
-## Caching
-
-- Redis
-
----
-
-## DevOps & Infrastructure
-
-- Docker
-- Kubernetes
-
----
-
-## Security
-
-- JWT Authentication
-- Middleware Guards
-- Rate Limiting
-
----
-
-# 🧩 Microservices Architecture
-
-## 🔐 Auth Service
-
-Responsible for:
-
-- Authentication workflows
-- JWT generation & validation
-- Access control
-- Authorization
-- Session management
-
----
-
-## 👤 User Service
-
-Responsible for:
-
-- User profiles
-- User activity
-- Preferences
-- Collaboration metadata
-- Social interactions
-
----
-
-## 📁 Project Service
-
-Responsible for:
-
-- Project management
-- Task orchestration
-- Team collaboration
-- Workflow management
-- Project lifecycle
-
----
-
-## 💬 Chat Service
-
-Responsible for:
-
-- Real-time messaging
-- Presence tracking
-- Room management
-- WebSocket communication
-- Event broadcasting
-
----
-
-## 🏆 Hackathon Service
-
-Responsible for:
-
-- Hackathon creation
-- Registrations
-- Event workflows
-- Participation handling
-- Submission management
-
----
-
-## 🔔 Notification Service
-
-Responsible for:
-
-- Event consumption
-- Email notifications
-- Push notifications
-- Async workflows
-- Activity triggers
-
----
-
-# 🌐 API Gateway
-
-The API Gateway acts as the centralized entry point for all client requests.
-
-## Responsibilities
-
-- Request routing
-- JWT validation
-- Authentication middleware
-- Reverse proxying
-- API rate limiting
-- Logging & monitoring
-- Security enforcement
-
-## Advantages
-
-- Unified frontend communication
-- Centralized security
-- Better observability
-- Simplified traffic management
-
----
-
-# 📁 Project Structure
-
-```text
-skillsync/
-│
-├── api-gateway/
-│
-├── services/
-│   ├── auth-service/
-│   ├── user-service/
-│   ├── project-service/
-│   ├── hackathon-service/
-│   ├── chat-service/
-│   └── notification-service/
-│
-├── shared/
-│   ├── config/
-│   ├── middleware/
-│   ├── constants/
-│   └── utils/
-│
-├── docker/
-├── kubernetes/
-├── frontend/
-└── docs/
-```
-
----
-
-# 🐳 Deployment Architecture
-
-The platform is fully containerized and cloud-native ready.
-
-## Docker
-
-Each service runs in isolated Docker containers to ensure:
-
-- Consistent environments
-- Easier deployments
-- Dependency isolation
-- Simplified scaling
-
----
-
-## Kubernetes
-
-Supports:
-
-- Horizontal scaling
-- Self-healing infrastructure
-- Rolling deployments
-- Container orchestration
-- High availability
-- Load balancing
-
----
-
-# 📈 Performance & Scalability
-
-## Optimizations Implemented
-
-### ⚡ Redis-Based Caching
-
-Reduced repetitive database queries and improved API response speed.
-
----
-
-### ⚡ Asynchronous Event Processing
-
-RabbitMQ offloaded expensive operations from synchronous request cycles.
-
----
-
-### ⚡ API Rate Limiting
-
-Protected services against abuse and sudden traffic spikes.
-
----
-
-### ⚡ Independent Service Scaling
-
-Each microservice scales independently based on workload.
-
----
-
-### ⚡ Optimized WebSocket Communication
-
-Efficient handling of concurrent real-time connections with minimal latency.
-
----
-
-# 🔐 Security
-
-## Security Mechanisms
-
-- JWT Authentication
-- Route Protection
-- Middleware Guards
-- Request Validation
-- API Rate Limiting
-- Secure Token Handling
-- Protected Service Communication
-
----
-
-# 🚀 Getting Started
-
-## 1️⃣ Clone Repository
-
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/your-username/skillsync.git
-```
-
----
-
-## 2️⃣ Navigate to Project
-
-```bash
 cd skillsync
 ```
 
----
+### 2. Configure Environment Variables
+Create `.env` files where required. The Docker Compose configuration handles most internal networking automatically. You will need to provide AWS S3 credentials in the `api-gateway` environment if you wish to test cloud uploads.
 
-## 3️⃣ Install Dependencies
-
-```bash
-npm install
-```
-
----
-
-## 4️⃣ Configure Environment Variables
-
-Create `.env` files inside each service.
-
-### Example
-
-```env
-PORT=3001
-
-DATABASE_URL=postgresql://postgres:password@localhost:5432/skillsync
-
-JWT_SECRET=your_secret_key
-
-REDIS_URL=redis://localhost:6379
-
-RABBITMQ_URL=amqp://localhost
-```
-
----
-
-## 5️⃣ Run Using Docker
+### 3. Spin Up the Infrastructure
+Docker Compose will build the frontend, the API Gateway, all 6 microservices, and provision the PostgreSQL and RabbitMQ containers.
 
 ```bash
-docker-compose up --build
+docker-compose up -d --build
 ```
 
----
-
-# 🌍 Environment Variables
-
-| Variable | Description |
-|---|---|
-| PORT | Service Port |
-| DATABASE_URL | PostgreSQL Connection String |
-| JWT_SECRET | JWT Signing Secret |
-| REDIS_URL | Redis Connection URL |
-| RABBITMQ_URL | RabbitMQ Broker URL |
+### 4. Access the Platform
+- **Frontend UI**: `http://localhost:5173`
+- **API Gateway**: `http://localhost:3000`
+- **RabbitMQ Management**: `http://localhost:15672` (guest / guest)
 
 ---
 
-# 📊 Engineering Highlights
+## 🔒 Security & Best Practices
 
-## Backend Engineering Concepts Used
-
-- Microservices Architecture
-- Event-Driven Systems
-- Distributed Caching
-- Real-Time Communication
-- Asynchronous Messaging
-- API Gateway Pattern
-- Containerized Infrastructure
-- Horizontal Scaling
-- Fault Isolation
-- Distributed Service Communication
+- **Stateless Authentication**: Short-lived JWTs managed client-side with auto-attaching Axios interceptors.
+- **Relational Integrity**: Prisma schemas utilize robust constraints (e.g., `onDelete: Cascade` for project members) to prevent orphaned records.
+- **Secure File Handling**: Files are buffered server-side via the API Gateway to prevent exposing AWS S3 CORS policies or direct write-access to the client.
+- **Rate Limiting & Guards**: NestJS guards protect internal microservice boundaries.
 
 ---
 
-# 🛣️ Future Enhancements
+## 📄 License
+This project is open-source and available under the MIT License.
 
-- GraphQL Gateway
-- OpenTelemetry Integration
-- Prometheus & Grafana Monitoring
-- AI-Powered Team Matching
-- CI/CD Pipelines
-- Distributed Tracing
-- Recommendation Engine Improvements
-- Multi-Region Deployment
-- Analytics Dashboard
-- File Upload Service
-
----
-
-# 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-# ⭐ Support
-
-If you found this project useful, consider giving it a ⭐ on GitHub.
+<div align="center">
+  <i>Engineered with passion for scalable backend design and premium user experiences.</i>
+</div>
