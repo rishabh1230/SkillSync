@@ -1,10 +1,12 @@
-import { Controller, UnauthorizedException } from '@nestjs/common';
+import { Controller, UnauthorizedException, UseFilters } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
 import { RMQ_PATTERNS } from '../../../../shared/rmq/patterns';
 import { AuthService } from '../auth/auth.service';
+import { MicroserviceExceptionFilter } from '../common/filters/microservice-exception.filter';
 
 @Controller()
+@UseFilters(MicroserviceExceptionFilter)
 export class AuthListener {
   constructor(
     private jwtService: JwtService,
@@ -29,4 +31,9 @@ export class AuthListener {
   login(@Payload() data: any) {
     return this.authService.login(data);
   }
-}
+
+  @MessagePattern(RMQ_PATTERNS.AUTH_UPDATE_PASSWORD)
+  updatePassword(@Payload() data: any) {
+    return this.authService.updatePassword(data);
+  }
+}

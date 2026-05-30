@@ -1,9 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices';
+import { MicroserviceExceptionFilter } from './common/filters/microservice-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // ✅ Global Filter
+  app.useGlobalFilters(new MicroserviceExceptionFilter());
 
   // ✅ HTTP server
   await app.listen(3001);

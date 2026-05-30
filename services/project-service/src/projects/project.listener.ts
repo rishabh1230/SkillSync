@@ -1,10 +1,12 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseFilters } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ProjectService } from './project.service';
 import { ProjectMemberService } from '../project-member/project-member.service';
 import { ProjectRole } from '@prisma/client';
+import { MicroserviceExceptionFilter } from '../common/filters/microservice-exception.filter';
 
 @Controller()
+@UseFilters(MicroserviceExceptionFilter)
 export class ProjectListener {
   constructor(
     private readonly projectService: ProjectService,

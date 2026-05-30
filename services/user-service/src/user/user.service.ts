@@ -39,9 +39,17 @@ export class UserService {
   // ✅ Update user
   async update(
     authId: string,
-    data: { username?: string; phone_no?: string },
+    data: {
+      username?: string;
+      phone_no?: string;
+      githubUrl?: string;
+      leetcodeUrl?: string;
+      portfolioUrl?: string;
+      skills?: string[];
+      education?: any;
+    },
   ) {
-    if (!data.username && !data.phone_no) {
+    if (Object.keys(data).length === 0) {
       throw new BadRequestException('Nothing to update');
     }
 

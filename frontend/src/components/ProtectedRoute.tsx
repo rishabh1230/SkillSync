@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from './Sidebar';
 
@@ -8,8 +9,31 @@ const ProtectedRoute: React.FC = () => {
 
   if (isInitializing) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-primary">
-        <div className="w-12 h-12 border-4 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '16px',
+          background: 'var(--bg-primary)',
+          color: 'var(--text-muted)',
+          fontSize: '0.875rem',
+        }}
+      >
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            border: '3px solid rgba(6,182,212,0.15)',
+            borderTop: '3px solid var(--accent-primary)',
+          }}
+        />
+        Loading SkillSync…
       </div>
     );
   }
@@ -19,9 +43,16 @@ const ProtectedRoute: React.FC = () => {
   }
 
   return (
-    <div className="app-layout">
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <main className="main-content">
+      <main
+        style={{
+          flex: 1,
+          padding: '2.5rem 2.5rem',
+          overflowY: 'auto',
+          minWidth: 0,
+        }}
+      >
         <Outlet />
       </main>
     </div>

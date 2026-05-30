@@ -22,4 +22,11 @@ export class AuthController {
       this.authClient.send(RMQ_PATTERNS.AUTH_LOGIN, body),
     );
   }
+
+  @Post('update-password')
+  async updatePassword(@Body() body: any) {
+    return firstValueFrom(
+      this.authClient.send(RMQ_PATTERNS.AUTH_UPDATE_PASSWORD, body),
+    );
+  }
 }

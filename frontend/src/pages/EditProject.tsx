@@ -1,98 +1,112 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Rocket, FileText, AlignLeft, Tags, Image as ImageIcon, Video, UploadCloud, ArrowLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Pencil, FileText, Video, AlignLeft, Tags, UploadCloud,
+  X, AlertCircle, ArrowLeft, Image as ImageIcon, CheckCircle2,
+} from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import MDEditor from '@uiw/react-md-editor';
 
-const EditProject: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const { token, user } = useAuth();
-  const navigate = useNavigate();
-  
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    status: 'DRAFT',
-    videoLink: '',
-    images: [] as string[]
-  });
-  
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
+/* ── shared input style ── */
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '0.75rem 1rem',
+  background: 'rgba(255,255,255,0.04)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: '12px',
+  color: '#fff',
+  fontSize: '0.9rem',
+  fontFamily: 'inherit',
+  outline: 'none',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+};
 
+const focusInput = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+  e.target.style.borderColor = 'var(--accent-primary)';
+  e.target.style.boxShadow = '0 0 0 3px rgba(6,182,212,0.12)';
+};
+const blurInput = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+  e.target.style.borderColor = 'rgba(255,255,255,0.08)';
+  e.target.style.boxShadow = 'none';
+};
+
+const EditProject: React.FC = () => {
+  const { id }             = useParams<{ id: string }>();
+  const { token, user }    = useAuth();
+  const navigate           = useNavigate();
+
+  const [formData, setFormData] = useState({
+    title:       '',
+    description: '',
+    status:      'DRAFT',
+    videoLink:   '',
+    images:      [] as string[],
+  });
+
+  const [error, setError]                   = useState('');
+  const [loading, setLoading]               = useState(true);
+  const [saving, setSaving]                 = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadSuccess, setUploadSuccess]   = useState(false);
+
+  /* ── Load existing project ── */
   useEffect(() => {
-    const fetchProject = async () => {
+    if (!user) return;
+    (async () => {
       try {
         const { data } = await api.get(`/projects/${id}`);
-        if (data.ownerId !== user?.id) {
-          navigate('/dashboard'); // Unauthorized
-          return;
-        }
+        if (data.ownerId !== user?.id) { navigate('/dashboard'); return; }
         setFormData({
-          title: data.title || '',
+          title:       data.title       || '',
           description: data.description || '',
-          status: data.status || 'DRAFT',
-          videoLink: data.videoLink || '',
-          images: data.images || []
+          status:      data.status      || 'DRAFT',
+          videoLink:   data.videoLink   || '',
+          images:      data.images      || [],
         });
-      } catch (err) {
+      } catch {
         setError('Failed to load project details.');
       } finally {
         setLoading(false);
       }
-    };
-    if (user) fetchProject();
+    })();
   }, [id, user, navigate]);
 
+  /* ── Image upload ── */
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     setUploadingImage(true);
+    setError('');
     const uploadedUrls: string[] = [];
-
     try {
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const formDataPayload = new FormData();
-        formDataPayload.append('file', file);
-        
-        const { data } = await api.post('/projects/upload', formDataPayload, {
-          headers: { 
-            Authorization: `Bearer ${token}`
-            // DO NOT manually set Content-Type here; Axios needs to set it automatically to include the boundary!
-          }
+        const payload = new FormData();
+        payload.append('file', files[i]);
+        const { data } = await api.post('/projects/upload', payload, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         uploadedUrls.push(data.url);
       }
-
-      setFormData(prev => ({
-        ...prev,
-        images: [...prev.images, ...uploadedUrls]
-      }));
-
-    } catch (err) {
-      console.error('Image upload failed', err);
-      alert('Failed to upload image(s).');
+      setFormData((prev) => ({ ...prev, images: [...prev.images, ...uploadedUrls] }));
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 2500);
+    } catch {
+      setError('Failed to upload image(s).');
     } finally {
       setUploadingImage(false);
+      e.target.value = '';
     }
   };
 
+  /* ── Save ── */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError('');
-    
     try {
-      await api.patch(`/projects/${id}`, formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.patch(`/projects/${id}`, formData, { headers: { Authorization: `Bearer ${token}` } });
       navigate(`/projects/${id}`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to update project');
@@ -101,148 +115,250 @@ const EditProject: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="container mt-12 text-center">Loading...</div>;
+  const removeImage = (i: number) =>
+    setFormData((prev) => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }));
+
+  /* ── Loading spinner ── */
+  if (loading) {
+    return (
+      <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', color: 'var(--text-muted)' }}>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+          style={{ width: '36px', height: '36px', borderRadius: '50%', border: '3px solid rgba(6,182,212,0.2)', borderTop: '3px solid var(--accent-primary)' }}
+        />
+        Loading project…
+      </div>
+    );
+  }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
+    <motion.div
+      className="container"
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="container pb-12"
+      transition={{ duration: 0.4 }}
+      style={{ paddingBottom: '5rem' }}
     >
-      <button 
-        onClick={() => navigate(-1)} 
-        className="flex items-center gap-2 text-secondary hover:text-white mb-6 transition-colors"
+      {/* ── Back ── */}
+      <button
+        onClick={() => navigate(`/projects/${id}`)}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: '7px',
+          padding: '7px 16px', borderRadius: '10px',
+          border: '1px solid rgba(255,255,255,0.07)',
+          background: 'rgba(255,255,255,0.03)',
+          color: 'var(--text-secondary)', cursor: 'pointer',
+          fontSize: '0.83rem', fontWeight: 500,
+          marginBottom: '1.75rem', transition: 'all 0.2s',
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.07)'; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-secondary)'; }}
       >
-        <ArrowLeft size={20} /> Back to Project
+        <ArrowLeft size={15} /> Back to Project
       </button>
 
-      <div className="mb-8 flex items-center gap-4">
-        <div style={{ backgroundColor: 'var(--accent-glow)', padding: '1rem', borderRadius: '50%' }}>
-          <Rocket size={32} color="var(--accent-primary)" />
+      {/* ── Page title ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '2rem' }}>
+        <div
+          style={{
+            width: '48px', height: '48px', borderRadius: '14px',
+            background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(6,182,212,0.2))',
+            border: '1px solid rgba(139,92,246,0.2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <Pencil size={22} color="#a78bfa" />
         </div>
         <div>
-          <h1 className="h1">Edit Project</h1>
-          <p className="text-secondary">Update your project details and media.</p>
+          <h1
+            style={{
+              fontSize: 'clamp(1.4rem, 3vw, 1.9rem)', fontWeight: 800, letterSpacing: '-0.03em',
+              background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+            }}
+          >
+            Edit Project
+          </h1>
+          <p style={{ fontSize: '0.83rem', color: 'var(--text-muted)', marginTop: '1px' }}>
+            Update your project details and media.
+          </p>
         </div>
       </div>
 
-      <div className="glass-panel" style={{ padding: '2.5rem', maxWidth: '900px', margin: '0 auto' }}>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-          
-          <div className="input-group">
-            <label className="input-label flex items-center gap-2">
-              <FileText size={16} />
-              Project Title
-            </label>
-            <input 
-              type="text" 
-              className="input-field" 
+      {/* ── Form card ── */}
+      <div
+        style={{
+          background: 'rgba(255,255,255,0.025)',
+          border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: '24px',
+          padding: '2rem',
+          maxWidth: '820px',
+        }}
+      >
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+          {/* Title */}
+          <FormField label="Project Title" icon={<FileText size={14} />}>
+            <input
+              type="text"
               value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
-              required 
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              required
+              style={inputStyle}
+              onFocus={focusInput}
+              onBlur={blurInput}
             />
-          </div>
+          </FormField>
 
-          <div className="input-group">
-            <label className="input-label flex items-center gap-2">
-              <Video size={16} />
-              Hero Video Link
-            </label>
-            <input 
-              type="url" 
-              className="input-field" 
+          {/* Video */}
+          <FormField label="Hero Video Link" icon={<Video size={14} />} hint="YouTube, Google Drive, or direct URL">
+            <input
+              type="url"
+              placeholder="https://www.youtube.com/watch?v=..."
               value={formData.videoLink}
-              onChange={(e) => setFormData({...formData, videoLink: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, videoLink: e.target.value })}
+              style={inputStyle}
+              onFocus={focusInput}
+              onBlur={blurInput}
             />
-          </div>
+          </FormField>
 
-          <div className="input-group" data-color-mode="dark">
-            <label className="input-label flex items-center gap-2 mb-2">
-              <AlignLeft size={16} />
-              Rich Description
-            </label>
-            <MDEditor
-              value={formData.description}
-              onChange={(val) => setFormData({...formData, description: val || ''})}
-              preview="edit"
-              height={300}
-              style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-            />
-          </div>
-
-          <div className="input-group">
-            <label className="input-label flex items-center gap-2">
-              <ImageIcon size={16} />
-              Project Images Gallery
-            </label>
-            
-            <div className="border-dashed border-2 border-slate-600 rounded-lg p-6 text-center hover:bg-slate-800 transition-colors duration-200">
-              <UploadCloud size={32} className="mx-auto mb-2 text-slate-400" />
-              <input 
-                type="file" 
-                multiple 
-                accept="image/*" 
-                onChange={handleImageUpload}
-                disabled={uploadingImage}
-                style={{ display: 'none' }}
-                id="edit-image-upload"
+          {/* Description */}
+          <FormField label="Rich Description" icon={<AlignLeft size={14} />}>
+            <div data-color-mode="dark">
+              <MDEditor
+                value={formData.description}
+                onChange={(val) => setFormData({ ...formData, description: val || '' })}
+                preview="edit"
+                height={280}
+                style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}
               />
-              <label htmlFor="edit-image-upload" className="btn btn-secondary cursor-pointer">
-                {uploadingImage ? 'Uploading...' : 'Browse New Images'}
-              </label>
             </div>
-            
+          </FormField>
+
+          {/* Images */}
+          <FormField label="Project Images" icon={<ImageIcon size={14} />}>
+            <label
+              htmlFor="edit-image-upload"
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: '10px', padding: '1.75rem',
+                border: '1.5px dashed rgba(255,255,255,0.12)',
+                borderRadius: '14px',
+                background: uploadingImage ? 'rgba(6,182,212,0.05)' : 'rgba(255,255,255,0.02)',
+                cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => { if (!uploadingImage) (e.currentTarget as HTMLLabelElement).style.borderColor = 'rgba(6,182,212,0.4)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLLabelElement).style.borderColor = 'rgba(255,255,255,0.12)'; }}
+            >
+              {uploadSuccess
+                ? <CheckCircle2 size={26} color="#10b981" />
+                : <UploadCloud size={26} color={uploadingImage ? 'var(--accent-primary)' : 'var(--text-muted)'} />}
+              <span style={{ fontSize: '0.85rem', color: uploadingImage ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+                {uploadingImage ? 'Uploading…' : uploadSuccess ? 'Uploaded!' : 'Click to add more images'}
+              </span>
+              <input id="edit-image-upload" type="file" multiple accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} style={{ display: 'none' }} />
+            </label>
+
             {formData.images.length > 0 && (
-              <div className="flex gap-4 flex-wrap mt-4">
-                {formData.images.map((img, i) => (
-                  <div key={i} className="relative w-32 h-32 rounded-lg overflow-hidden border border-slate-700">
-                    <img src={img} alt={`Uploaded ${i}`} className="object-cover w-full h-full" />
-                    <button 
-                      type="button"
-                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs shadow-lg hover:bg-red-700"
-                      onClick={() => setFormData(prev => ({...prev, images: prev.images.filter((_, idx) => idx !== i)}))}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '12px' }}>
+                <AnimatePresence>
+                  {formData.images.map((img, i) => (
+                    <motion.div
+                      key={img}
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.85 }}
+                      style={{ position: 'relative', width: '96px', height: '96px', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}
                     >
-                      ×
-                    </button>
-                  </div>
-                ))}
+                      <img src={img} alt={`Upload ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(i)}
+                        style={{
+                          position: 'absolute', top: '5px', right: '5px',
+                          width: '22px', height: '22px', borderRadius: '50%',
+                          background: 'rgba(0,0,0,0.7)', border: 'none', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+                        }}
+                      >
+                        <X size={12} />
+                      </button>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             )}
-          </div>
+          </FormField>
 
-          <div className="input-group">
-            <label className="input-label flex items-center gap-2">
-              <Tags size={16} />
-              Status
-            </label>
-            <select 
-              className="input-field" 
+          {/* Status */}
+          <FormField label="Project Status" icon={<Tags size={14} />}>
+            <select
               value={formData.status}
-              onChange={(e) => setFormData({...formData, status: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              style={{ ...inputStyle, cursor: 'pointer' }}
+              onFocus={focusInput}
+              onBlur={blurInput}
             >
               <option value="DRAFT">Draft</option>
               <option value="PUBLISHED">Published</option>
               <option value="ARCHIVED">Archived</option>
             </select>
-          </div>
+          </FormField>
 
-          {error && <p className="error-text">{error}</p>}
+          {/* Error */}
+          {error && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', color: '#f87171', fontSize: '0.82rem' }}
+            >
+              <AlertCircle size={14} /> {error}
+            </motion.div>
+          )}
 
-          <div className="flex justify-between items-center mt-4 border-t border-light pt-6" style={{ borderTop: '1px solid var(--border-light)' }}>
-            <button 
-              type="button" 
-              className="btn btn-secondary"
+          {/* Actions */}
+          <div
+            style={{
+              display: 'flex', justifyContent: 'flex-end', gap: '10px',
+              paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.06)',
+            }}
+          >
+            <button
+              type="button"
               onClick={() => navigate(`/projects/${id}`)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '7px',
+                padding: '0.7rem 1.4rem', borderRadius: '11px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.04)',
+                color: 'var(--text-secondary)', fontFamily: 'inherit',
+                fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)'}
+              onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)'}
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
-              className="btn btn-primary"
+            <motion.button
+              type="submit"
               disabled={saving || !formData.title || uploadingImage}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '7px',
+                padding: '0.7rem 1.6rem', borderRadius: '11px', border: 'none',
+                background: (saving || !formData.title || uploadingImage)
+                  ? 'rgba(139,92,246,0.3)'
+                  : 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                color: '#fff', fontFamily: 'inherit', fontSize: '0.875rem', fontWeight: 600,
+                cursor: (saving || !formData.title || uploadingImage) ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 16px rgba(139,92,246,0.3)', transition: 'all 0.2s',
+              }}
             >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+              <Pencil size={15} />
+              {saving ? 'Saving…' : 'Save Changes'}
+            </motion.button>
           </div>
 
         </form>
@@ -250,5 +366,27 @@ const EditProject: React.FC = () => {
     </motion.div>
   );
 };
+
+/* ── tiny field wrapper ── */
+const FormField: React.FC<{ label: string; icon: React.ReactNode; hint?: string; children: React.ReactNode }> = ({
+  label, icon, hint, children,
+}) => (
+  <div>
+    <label
+      style={{
+        display: 'flex', alignItems: 'center', gap: '6px',
+        fontSize: '0.8rem', fontWeight: 600,
+        color: 'var(--text-secondary)',
+        letterSpacing: '0.02em',
+        marginBottom: hint ? '4px' : '8px',
+      }}
+    >
+      <span style={{ color: '#a78bfa' }}>{icon}</span>
+      {label}
+    </label>
+    {hint && <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px' }}>{hint}</p>}
+    {children}
+  </div>
+);
 
 export default EditProject;

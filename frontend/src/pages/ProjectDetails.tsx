@@ -1,12 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-import ReactPlayer from 'react-player';
-import { Edit, Trash2, ArrowLeft } from 'lucide-react';
+import {
+  Edit,
+  Trash2,
+  ArrowLeft,
+  Calendar,
+  Layers,
+  Activity,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  ImageOff,
+  Play,
+} from 'lucide-react';
 
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+
+/* ─────────────── helpers ─────────────── */
+
+const getYoutubeEmbedUrl = (url: string): string | null => {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+};
+
+const getDriveId = (url: string): string | null => {
+  const patterns = [
+    /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
+    /drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+};
+
+const ensureHttps = (url: string) =>
+  /^https?:\/\//i.test(url) ? url : `https://${url}`;
+
+/* ─────────────── types ─────────────── */
 
 interface Project {
   id: string;
@@ -18,6 +54,238 @@ interface Project {
   status: string;
   createdAt: string;
 }
+
+type MediaItem = { type: 'video' | 'image'; src: string };
+
+/* ─────────────── status badge colour ─────────────── */
+
+const statusConfig: Record<string, { bg: string; text: string; border: string; dot: string }> = {
+  ACTIVE:      { bg: '#10b98115', text: '#10b981', border: '#10b98130', dot: '#10b981' },
+  DRAFT:       { bg: '#f59e0b15', text: '#f59e0b', border: '#f59e0b30', dot: '#f59e0b' },
+  COMPLETED:   { bg: '#6366f115', text: '#818cf8', border: '#6366f130', dot: '#818cf8' },
+  ARCHIVED:    { bg: '#71717a15', text: '#a1a1aa', border: '#71717a30', dot: '#a1a1aa' },
+};
+
+/* ─────────────── MediaCarousel ─────────────── */
+
+const MediaCarousel: React.FC<{ items: MediaItem[] }> = ({ items }) => {
+  const [idx, setIdx] = useState(0);
+  const total = items.length;
+
+  const prev = () => setIdx((i) => (i - 1 + total) % total);
+  const next = () => setIdx((i) => (i + 1) % total);
+
+  const item = items[idx];
+  const youtubeEmbed = item.type === 'video' ? getYoutubeEmbedUrl(item.src) : null;
+  const driveId      = item.type === 'video' ? getDriveId(item.src) : null;
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        borderRadius: '24px',
+        overflow: 'hidden',
+        background: '#08080f',
+        border: '1px solid rgba(255,255,255,0.06)',
+        boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
+      }}
+    >
+      {/* ── slide ── */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.25 }}
+          style={{
+            width: '100%',
+            aspectRatio: '16 / 9',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#08080f',
+          }}
+        >
+          {item.type === 'image' ? (
+            <img
+              src={item.src}
+              alt={`media-${idx}`}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+              }}
+            />
+          ) : youtubeEmbed ? (
+            <iframe
+              src={`${youtubeEmbed}?rel=0&modestbranding=1`}
+              title={`youtube-${idx}`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                border: 'none',
+              }}
+            />
+          ) : driveId ? (
+            <iframe
+              src={`https://drive.google.com/file/d/${driveId}/preview`}
+              title={`drive-${idx}`}
+              allow="autoplay"
+              allowFullScreen
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                border: 'none',
+              }}
+            />
+          ) : (
+            <video
+              controls
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+              }}
+            >
+              <source src={item.src} />
+            </video>
+          )}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* ── controls ── */}
+      {total > 1 && (
+        <>
+          {/* prev */}
+          <button
+            onClick={prev}
+            aria-label="Previous"
+            style={{
+              position: 'absolute',
+              left: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              background: 'rgba(0,0,0,0.55)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#fff',
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(6,182,212,0.35)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.55)')}
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          {/* next */}
+          <button
+            onClick={next}
+            aria-label="Next"
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              background: 'rgba(0,0,0,0.55)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#fff',
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(6,182,212,0.35)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.55)')}
+          >
+            <ChevronRight size={20} />
+          </button>
+
+          {/* dots */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '14px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              gap: '6px',
+              zIndex: 10,
+            }}
+          >
+            {items.map((it, i) => (
+              <button
+                key={i}
+                onClick={() => setIdx(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                style={{
+                  width: i === idx ? '22px' : '7px',
+                  height: '7px',
+                  borderRadius: '9999px',
+                  background: i === idx ? 'var(--accent-primary)' : 'rgba(255,255,255,0.3)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  transition: 'all 0.25s',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* counter */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '14px',
+              right: '14px',
+              background: 'rgba(0,0,0,0.55)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '9999px',
+              padding: '3px 10px',
+              fontSize: '0.75rem',
+              color: 'rgba(255,255,255,0.75)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            {item.type === 'image' ? <ImageOff size={12} /> : <Play size={12} />}
+            {idx + 1} / {total}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+/* ─────────────── Page ─────────────── */
 
 const ProjectDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -41,26 +309,16 @@ const ProjectDetails: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchProject();
   }, [id]);
 
   const handleDelete = async () => {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this project? This cannot be undone.'
-    );
-
-    if (!confirmed) return;
-
+    if (!window.confirm('Are you sure you want to delete this project? This cannot be undone.')) return;
     setDeleting(true);
-
     try {
       await api.delete(`/projects/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       navigate('/dashboard');
     } catch (err) {
       console.error(err);
@@ -69,219 +327,521 @@ const ProjectDetails: React.FC = () => {
     }
   };
 
+  /* ── Loading ── */
   if (loading) {
     return (
-      <div className="container mt-12 text-center">
-        Loading project...
+      <div
+        style={{
+          minHeight: '60vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '16px',
+          color: 'var(--text-secondary)',
+        }}
+      >
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            border: '3px solid rgba(6,182,212,0.2)',
+            borderTop: '3px solid var(--accent-primary)',
+          }}
+        />
+        Loading project…
       </div>
     );
   }
 
+  /* ── Error ── */
   if (error || !project) {
     return (
-      <div className="container mt-12 text-center text-red-500">
+      <div className="container" style={{ paddingTop: '4rem', textAlign: 'center', color: 'var(--danger)' }}>
         {error || 'Project not found.'}
       </div>
     );
   }
 
+  /* ── derived data ── */
   const isOwner = user?.id === project.ownerId;
 
-  // Extract all URLs robustly
   const videoUrls =
     project.videoLink
       ?.match(/(?:https?:\/\/)?(?:www\.)?[^\s,]+/g)
-      ?.map((url) => {
-        let cleanUrl = url.trim();
-        if (!/^https?:\/\//i.test(cleanUrl)) {
-          cleanUrl = 'https://' + cleanUrl;
-        }
-        return cleanUrl;
-      })
-      ?.filter(Boolean) || [];
+      ?.map((u) => ensureHttps(u.trim()))
+      .filter(Boolean) ?? [];
 
+  const mediaItems: MediaItem[] = [
+    ...videoUrls.map((src) => ({ type: 'video' as const, src })),
+    ...(project.images ?? []).map((src) => ({ type: 'image' as const, src })),
+  ];
+
+  const hasUnparsedVideo = project.videoLink && videoUrls.length === 0;
+
+  const st = statusConfig[project.status] ?? statusConfig['DRAFT'];
+
+  /* ── render ── */
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="container pb-24"
+      className="container"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      style={{ paddingBottom: '6rem' }}
     >
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-secondary hover:text-white mb-6 transition-colors"
+      {/* ── Back + Owner actions bar ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
       >
-        <ArrowLeft size={20} />
-        Back
-      </button>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 18px',
+            borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(255,255,255,0.04)',
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)';
+            (e.currentTarget as HTMLButtonElement).style.color = '#fff';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-secondary)';
+          }}
+        >
+          <ArrowLeft size={16} />
+          Back
+        </button>
 
-      {/* VIDEO SECTION */}
-      {project.videoLink && videoUrls.length === 0 && (
-        <div className="mb-8 p-4 bg-slate-800 rounded-xl border border-slate-700 text-center text-slate-300">
-          <p>A video link was provided but couldn't be parsed automatically.</p>
-          <a href={project.videoLink} target="_blank" rel="noopener noreferrer" className="text-accent-primary hover:underline mt-2 inline-block">
-            {project.videoLink}
-          </a>
-        </div>
-      )}
-
-      {videoUrls.length > 0 && (
-        <div className="flex flex-col gap-8 mb-8">
-          {videoUrls.map((url, idx) => {
-            // Google Drive Patterns
-            const drivePatterns = [
-              /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/,
-              /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
-              /drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/,
-            ];
-
-            let driveId: string | null = null;
-
-            for (const pattern of drivePatterns) {
-              const match = url.match(pattern);
-
-              if (match) {
-                driveId = match[1];
-                break;
-              }
-            }
-
-            // GOOGLE DRIVE VIDEO
-            if (driveId) {
-              return (
-                <div
-                  key={idx}
-                  className="w-full bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800"
-                  style={{
-                    aspectRatio: '16/9',
-                    maxHeight: '650px',
-                  }}
-                >
-                  <iframe
-                    src={`https://drive.google.com/file/d/${driveId}/preview`}
-                    width="100%"
-                    height="100%"
-                    allow="autoplay"
-                    allowFullScreen
-                    className="border-0"
-                    title={`drive-video-${idx}`}
-                  />
-                </div>
-              );
-            }
-
-            // YOUTUBE + OTHER VIDEOS
-            return (
-              <div
-                key={idx}
-                className="w-full bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800"
-                style={{
-                  aspectRatio: '16/9',
-                  maxHeight: '650px',
-                }}
-              >
-                <ReactPlayer
-                  url={url}
-                  width="100%"
-                  height="100%"
-                  controls
-                  playing={false}
-                />
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* HEADER */}
-      <div className="flex justify-between items-start mb-8">
-        <div>
-          <h1 className="text-4xl font-bold mb-2 text-white">
-            {project.title}
-          </h1>
-
-          <div className="flex gap-4 text-sm text-slate-400">
-            <span>
-              Status:{' '}
-              <span className="text-blue-400">
-                {project.status}
-              </span>
-            </span>
-
-            <span>
-              Created:{' '}
-              {new Date(project.createdAt).toLocaleDateString()}
-            </span>
-          </div>
-        </div>
-
-        {/* OWNER ACTIONS */}
         {isOwner && (
-          <div className="flex gap-3">
+          <div style={{ display: 'flex', gap: '10px' }}>
             <button
               onClick={() => navigate(`/projects/${id}/edit`)}
-              className="btn btn-secondary flex items-center gap-2"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '7px',
+                padding: '8px 18px',
+                borderRadius: '12px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.04)',
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)')}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)')}
             >
-              <Edit size={16} />
+              <Edit size={15} />
               Edit
             </button>
 
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '7px',
+                padding: '8px 18px',
+                borderRadius: '12px',
+                border: '1px solid rgba(239,68,68,0.25)',
+                background: 'rgba(239,68,68,0.08)',
+                color: '#f87171',
+                cursor: deleting ? 'not-allowed' : 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                opacity: deleting ? 0.6 : 1,
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                if (!deleting) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.18)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.08)';
+              }}
             >
-              <Trash2 size={16} />
-
-              {deleting ? 'Deleting...' : 'Delete'}
+              <Trash2 size={15} />
+              {deleting ? 'Deleting…' : 'Delete'}
             </button>
           </div>
         )}
       </div>
 
-      {/* MAIN CONTENT */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        {/* DESCRIPTION */}
-        <div
-          className="lg:col-span-2 glass-panel p-8 rounded-2xl markdown-body"
-          style={{ color: 'var(--text-primary)' }}
+      {/* ── Title + meta ── */}
+      <div style={{ marginBottom: '2rem' }}>
+        <h1
+          style={{
+            fontSize: 'clamp(1.75rem, 4vw, 2.75rem)',
+            fontWeight: 800,
+            letterSpacing: '-0.03em',
+            background: 'linear-gradient(135deg, #ffffff 0%, #94a3b8 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            marginBottom: '0.75rem',
+            lineHeight: 1.15,
+          }}
         >
-          <ReactMarkdown>
-            {project.description || '*No description provided.*'}
-          </ReactMarkdown>
+          {project.title}
+        </h1>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          {/* status badge */}
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 12px',
+              borderRadius: '9999px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              background: st.bg,
+              color: st.text,
+              border: `1px solid ${st.border}`,
+            }}
+          >
+            <span
+              style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: st.dot,
+                flexShrink: 0,
+              }}
+            />
+            {project.status}
+          </span>
+
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              fontSize: '0.8rem',
+              color: 'var(--text-muted)',
+            }}
+          >
+            <Calendar size={13} />
+            {new Date(project.createdAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </span>
+
+          {mediaItems.length > 0 && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '0.8rem',
+                color: 'var(--text-muted)',
+              }}
+            >
+              <Layers size={13} />
+              {mediaItems.length} media asset{mediaItems.length !== 1 ? 's' : ''}
+            </span>
+          )}
         </div>
+      </div>
 
-        {/* IMAGE GALLERY */}
-        <div className="lg:col-span-1">
-          <div className="glass-panel p-6 rounded-2xl sticky top-8">
-            <h3 className="text-xl font-bold mb-4">
-              Gallery
-            </h3>
+      {/* ── Fallback for unparsed video ── */}
+      {hasUnparsedVideo && (
+        <div
+          style={{
+            marginBottom: '1.5rem',
+            padding: '1rem 1.25rem',
+            borderRadius: '14px',
+            border: '1px solid rgba(245,158,11,0.2)',
+            background: 'rgba(245,158,11,0.06)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '0.875rem',
+            color: '#fbbf24',
+          }}
+        >
+          <Activity size={16} />
+          A video link was provided but couldn't be auto-embedded.&nbsp;
+          <a
+            href={project.videoLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: '#06b6d4',
+              textDecoration: 'underline',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            Open link <ExternalLink size={12} />
+          </a>
+        </div>
+      )}
 
-            {project.images && project.images.length > 0 ? (
-              <div className="flex flex-col gap-4">
-                {project.images.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={img}
-                    alt={`Project screenshot ${idx + 1}`}
-                    className="w-full h-auto rounded-xl shadow-md border border-slate-700 object-cover hover:scale-[1.02] transition-transform cursor-pointer"
-                    onClick={() => window.open(img, '_blank')}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p className="text-slate-400 text-sm">
-                No images uploaded for this project.
-              </p>
-            )}
+      {/* ── Main two-column layout ── */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr) 280px',
+          gap: '24px',
+          alignItems: 'start',
+        }}
+      >
+        {/* ── Left column ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
+          {/* Media carousel */}
+          {mediaItems.length > 0 && <MediaCarousel items={mediaItems} />}
+
+          {/* Description card */}
+          <div
+            className="glass-panel"
+            style={{ padding: '2rem', borderRadius: '20px' }}
+          >
+            <h2
+              style={{
+                fontSize: '1rem',
+                fontWeight: 600,
+                color: 'var(--text-secondary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                marginBottom: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: '18px',
+                  height: '2px',
+                  background: 'var(--accent-primary)',
+                  borderRadius: '2px',
+                }}
+              />
+              Description
+            </h2>
+
+            <div
+              className="markdown-body"
+              style={{
+                color: 'var(--text-primary)',
+                lineHeight: 1.75,
+                fontSize: '0.9375rem',
+              }}
+            >
+              <ReactMarkdown>
+                {project.description || '*No description provided.*'}
+              </ReactMarkdown>
+            </div>
           </div>
         </div>
 
+        {/* ── Right sidebar ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'sticky', top: '24px' }}>
+          {/* Project Info card */}
+          <div
+            className="glass-panel"
+            style={{ padding: '1.5rem', borderRadius: '20px' }}
+          >
+            <h3
+              style={{
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: 'var(--text-muted)',
+                marginBottom: '1.25rem',
+              }}
+            >
+              Project Info
+            </h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              {/* Status */}
+              <InfoRow
+                label="Status"
+                value={
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color: st.text,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        background: st.dot,
+                      }}
+                    />
+                    {project.status}
+                  </span>
+                }
+              />
+
+              {/* Created */}
+              <InfoRow
+                label="Created"
+                value={
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                    {new Date(project.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </span>
+                }
+              />
+
+              {/* Media */}
+              <InfoRow
+                label="Media"
+                value={
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                    {mediaItems.length > 0
+                      ? `${mediaItems.filter((m) => m.type === 'video').length} video(s), ${
+                          mediaItems.filter((m) => m.type === 'image').length
+                        } image(s)`
+                      : '—'}
+                  </span>
+                }
+              />
+            </div>
+          </div>
+
+          {/* Owner actions card (visible to owner) */}
+          {isOwner && (
+            <div
+              className="glass-panel"
+              style={{ padding: '1.5rem', borderRadius: '20px' }}
+            >
+              <h3
+                style={{
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: 'var(--text-muted)',
+                  marginBottom: '1.25rem',
+                }}
+              >
+                Owner Actions
+              </h3>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button
+                  onClick={() => navigate(`/projects/${id}/edit`)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    width: '100%',
+                    padding: '10px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: 'rgba(6,182,212,0.1)',
+                    color: 'var(--accent-primary)',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(6,182,212,0.2)')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(6,182,212,0.1)')}
+                >
+                  <Edit size={15} />
+                  Edit Project
+                </button>
+
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    width: '100%',
+                    padding: '10px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(239,68,68,0.2)',
+                    background: 'rgba(239,68,68,0.07)',
+                    color: '#f87171',
+                    cursor: deleting ? 'not-allowed' : 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    opacity: deleting ? 0.6 : 1,
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!deleting) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.16)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.07)';
+                  }}
+                >
+                  <Trash2 size={15} />
+                  {deleting ? 'Deleting…' : 'Delete Project'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );
 };
+
+/* ── tiny helper component ── */
+const InfoRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4px',
+      paddingBottom: '18px',
+      borderBottom: '1px solid rgba(255,255,255,0.04)',
+    }}
+  >
+    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>{label}</span>
+    {value}
+  </div>
+);
 
 export default ProjectDetails;

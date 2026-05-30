@@ -12,6 +12,11 @@ model User {
   authId    String   @unique
   email     String
   username  String
-  phone_no  String?
-  createdAt DateTime @default(now())
+  phone_no     String?
+  githubUrl    String?
+  leetcodeUrl  String?
+  portfolioUrl String?
+  skills       String[]
+  education    Json?
+  createdAt    DateTime @default(now())
 }
