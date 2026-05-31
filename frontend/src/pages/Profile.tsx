@@ -108,12 +108,11 @@ const Profile: React.FC = () => {
     setProfErr('');
     setSavingProf(true);
     try {
-      const res = await api.patch(
+      await api.patch(
         '/users/profile',
         editData,
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      const d = res.data;
       setProfile((p) => ({
         ...p,
         ...editData,
@@ -159,11 +158,9 @@ const Profile: React.FC = () => {
   const handleAddSkill = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const val = skillInput.trim();
-      if (val && !editData.skills.includes(val)) {
-        setEditData({ ...editData, skills: [...editData.skills, val] });
-        setSkillInput('');
-      }
+      const newSkill = prompt('Enter a new skill (e.g., React, Python):');
+      if (newSkill) setProfile(() => ({ ...profile, skills: [...(profile.skills || []), newSkill] }));
+      setSkillInput('');
     }
   };
   

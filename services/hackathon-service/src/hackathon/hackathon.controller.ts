@@ -14,8 +14,13 @@ export class HackathonController {
   }
 
   @MessagePattern('HACKATHON_GET_ALL')
-  async findAll() {
-    return this.hackathonService.findAll();
+  async findAll(@Payload() query: any) {
+    return this.hackathonService.findAll(query);
+  }
+
+  @MessagePattern('HACKATHON_GET_TRENDING')
+  async findTrending() {
+    return this.hackathonService.findTrending();
   }
 
   @MessagePattern('HACKATHON_GET_BY_ID')
@@ -51,5 +56,10 @@ export class HackathonController {
   @MessagePattern('HACKATHON_TOGGLE_PROJECT_VISIBILITY')
   async toggleVisibility(@Payload() data: { hackathonId: string; submissionId: string; user: any }) {
     return this.hackathonService.toggleProjectVisibility(data.hackathonId, data.submissionId, data.user.sub);
+  }
+
+  @MessagePattern('HACKATHON_GET_MY')
+  async getMyHackathons(@Payload() data: { user: any }) {
+    return this.hackathonService.getMyHackathons(data.user.sub);
   }
 }

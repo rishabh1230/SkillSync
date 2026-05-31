@@ -239,7 +239,7 @@ const MediaCarousel: React.FC<{ items: MediaItem[] }> = ({ items }) => {
               zIndex: 10,
             }}
           >
-            {items.map((it, i) => (
+            {items.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setIdx(i)}

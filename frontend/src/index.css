@@ -2,22 +2,22 @@
 
 :root {
   /* Core Colors */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-glass: rgba(18, 18, 26, 0.6);
-  --bg-glass-hover: rgba(255, 255, 255, 0.08);
+  --bg-primary: #11131b;
+  --bg-secondary: #191b23;
+  --bg-glass: rgba(25, 27, 35, 0.6);
+  --bg-glass-hover: rgba(255, 255, 255, 0.05);
   
-  --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
+  --text-primary: #e1e2ed;
+  --text-secondary: #c3c6d7;
+  --text-muted: #8d90a0;
 
-  --accent-primary: #06b6d4; /* Vibrant Cyan */
-  --accent-hover: #0891b2;
-  --accent-glow: rgba(6, 182, 212, 0.4);
+  --accent-primary: #2563eb;
+  --accent-hover: #0053db;
+  --accent-glow: rgba(37, 99, 235, 0.4);
 
-  --accent-secondary: #8b5cf6; /* Vibrant Purple */
+  --accent-secondary: #f59e0b; 
   
-  --danger: #ef4444;
+  --danger: #ffb4ab;
   --success: #10b981;
 
   /* Text Gradients */

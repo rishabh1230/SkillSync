@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { Upload, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const inputStyle = {
   width: '100%',

@@ -29,7 +29,7 @@ const containerVars = {
 
 const itemVars = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
 const Dashboard: React.FC = () => {
@@ -97,23 +97,23 @@ const Dashboard: React.FC = () => {
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.03, y: -1 }}
+          whileHover={{ scale: 1.03, y: -2, boxShadow: '0 8px 25px var(--accent-glow)' }}
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/create-project')}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
-            padding: '0.7rem 1.4rem',
+            padding: '0.75rem 1.5rem',
             borderRadius: '12px',
             border: 'none',
-            background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+            background: 'var(--accent-primary)',
             color: '#fff',
             fontFamily: 'inherit',
             fontSize: '0.875rem',
             fontWeight: 600,
             cursor: 'pointer',
-            boxShadow: '0 4px 20px rgba(6,182,212,0.35)',
+            boxShadow: '0 4px 15px var(--accent-glow)',
             flexShrink: 0,
           }}
         >
@@ -136,18 +136,18 @@ const Dashboard: React.FC = () => {
           }}
         >
           {[
-            { label: 'Total Projects', value: projects.length, icon: Layers, color: '#06b6d4' },
+            { label: 'Total Projects', value: projects.length, icon: Layers, color: 'var(--accent-primary)' },
             {
               label: 'Active',
               value: projects.filter((p) => p.status === 'ACTIVE' || p.status === 'PUBLISHED').length,
               icon: TrendingUp,
-              color: '#10b981',
+              color: 'var(--success)',
             },
             {
               label: 'Drafts',
               value: projects.filter((p) => !p.status || p.status === 'DRAFT').length,
               icon: Folder,
-              color: '#f59e0b',
+              color: 'var(--accent-secondary)',
             },
           ].map(({ label, value, icon: Icon, color }) => (
             <div
@@ -238,15 +238,15 @@ const Dashboard: React.FC = () => {
             Get started by creating your first project to organize your work and showcase your skills.
           </p>
           <motion.button
-            whileHover={{ scale: 1.03, y: -1 }}
+            whileHover={{ scale: 1.03, y: -2, boxShadow: '0 8px 25px var(--accent-glow)' }}
             whileTap={{ scale: 0.97 }}
             onClick={() => navigate('/create-project')}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               padding: '0.75rem 1.5rem', borderRadius: '12px', border: 'none',
-              background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+              background: 'var(--accent-primary)',
               color: '#fff', fontFamily: 'inherit', fontSize: '0.875rem', fontWeight: 600,
-              cursor: 'pointer', boxShadow: '0 4px 20px rgba(6,182,212,0.35)',
+              cursor: 'pointer', boxShadow: '0 4px 15px var(--accent-glow)',
             }}
           >
             <Plus size={18} />
@@ -290,9 +290,10 @@ const Dashboard: React.FC = () => {
                     overflow: 'hidden',
                   }}
                   whileHover={{
-                    y: -4,
-                    boxShadow: '0 16px 40px rgba(0,0,0,0.35)',
-                    borderColor: 'rgba(6,182,212,0.25)',
+                    y: -6,
+                    scale: 1.02,
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                    borderColor: 'var(--accent-primary)',
                   }}
                 >
                   {/* Top accent line */}
@@ -303,9 +304,9 @@ const Dashboard: React.FC = () => {
                       left: 0,
                       right: 0,
                       height: '2px',
-                      background: 'linear-gradient(90deg, #06b6d4, #8b5cf6)',
+                      background: 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))',
                       opacity: 0,
-                      transition: 'opacity 0.2s',
+                      transition: 'opacity 0.3s',
                     }}
                     className="project-card-accent"
                   />

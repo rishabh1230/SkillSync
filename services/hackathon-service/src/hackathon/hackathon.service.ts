@@ -9,9 +9,85 @@ export class HackathonService {
     return this.prisma.hackathon.create({ data });
   }
 
-  async findAll() {
+  async findAll(query: any = {}) {
+    const {
+      search,
+      status,
+      tags,
+      organization,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      page = 1,
+      limit = 12,
+    } = query;
+
+    const where: any = {};
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { shortDescription: { contains: search, mode: 'insensitive' } },
+        { fullDescription: { contains: search, mode: 'insensitive' } },
+        { organizationName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (tags) {
+      // tags could be a comma-separated string or an array
+      const tagsArray = Array.isArray(tags) ? tags : tags.split(',');
+      where.tags = { hasSome: tagsArray };
+    }
+
+    if (organization) {
+      const orgArray = Array.isArray(organization) ? organization : organization.split(',');
+      where.organizationName = { in: orgArray };
+    }
+
+    const orderBy: any = {};
+    if (sortBy === 'participantCount') {
+      orderBy.participantCount = sortOrder;
+    } else if (sortBy === 'registrationEndDate') {
+      orderBy.registrationEndDate = sortOrder;
+    } else if (sortBy === 'startDate') {
+      orderBy.hackathonStartDate = sortOrder;
+    } else {
+      orderBy.createdAt = sortOrder;
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [hackathons, total] = await Promise.all([
+      this.prisma.hackathon.findMany({
+        where,
+        orderBy,
+        skip,
+        take: Number(limit),
+      }),
+      this.prisma.hackathon.count({ where }),
+    ]);
+
+    return {
+      data: hackathons,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    };
+  }
+
+  async findTrending() {
     return this.prisma.hackathon.findMany({
-      orderBy: { createdAt: 'desc' },
+      where: {
+        status: { in: ['REGISTRATION_OPEN', 'UPCOMING', 'ONGOING'] },
+      },
+      orderBy: { participantCount: 'desc' },
+      take: 5,
     });
   }
 
@@ -47,9 +123,14 @@ export class HackathonService {
   }
 
   async register(hackathonId: string, userId: string) {
-    return this.prisma.hackathonRegistration.create({
+    const reg = await this.prisma.hackathonRegistration.create({
       data: { hackathonId, userId }
     });
+    await this.prisma.hackathon.update({
+      where: { id: hackathonId },
+      data: { participantCount: { increment: 1 } },
+    });
+    return reg;
   }
 
   // Register as solo participant (no team creation)
@@ -63,9 +144,14 @@ export class HackathonService {
     });
     if (existing) throw new ConflictException('Already registered for this hackathon');
 
-    return this.prisma.hackathonRegistration.create({
+    const reg = await this.prisma.hackathonRegistration.create({
       data: { hackathonId, userId, participantType },
     });
+    await this.prisma.hackathon.update({
+      where: { id: hackathonId },
+      data: { participantCount: { increment: 1 } },
+    });
+    return reg;
   }
 
   // Get all participants (teams + members) for a hackathon
@@ -122,7 +208,7 @@ export class HackathonService {
       where: { id: hackathonId },
       include: {
         submissions: {
-          include: { team: true },
+          include: { team: { include: { members: true } } },
           orderBy: { submittedAt: 'asc' },
         },
       },
@@ -132,14 +218,27 @@ export class HackathonService {
     const isHost = hackathon.organizerId && hackathon.organizerId === requesterId;
     const isCompleted = hackathon.status === 'COMPLETED';
 
-    const filtered = hackathon.submissions.filter((sub) => {
+    const mappedSubmissions = hackathon.submissions.map((sub) => {
+      const isMine = requesterId ? sub.team?.members.some(m => m.userId === requesterId) : false;
+      return { ...sub, isMine };
+    });
+
+    const filtered = mappedSubmissions.filter((sub) => {
       if (isHost) return true;
       if (isCompleted) return true;
+      if (sub.isMine) return true; // Always let users see their own submission
       return sub.isVisible;
     });
 
+    // Sort to put the user's submission at the top
+    filtered.sort((a, b) => {
+      if (a.isMine && !b.isMine) return -1;
+      if (!a.isMine && b.isMine) return 1;
+      return 0;
+    });
+
     return {
-      submissions: filtered,
+      submissions: filtered.map(s => ({ ...s, team: { ...s.team, members: undefined } })), // remove members from response
       isHost,
       isCompleted,
       hackathonStatus: hackathon.status,
@@ -158,6 +257,32 @@ export class HackathonService {
     return this.prisma.submission.update({
       where: { id: submissionId },
       data: { isVisible: !submission.isVisible },
+    });
+  }
+
+  // Get hackathons where the user is registered
+  async getMyHackathons(userId: string) {
+    const registrations = await this.prisma.hackathonRegistration.findMany({
+      where: { userId },
+      include: { 
+        hackathon: {
+          include: {
+            submissions: {
+              where: {
+                team: { members: { some: { userId } } }
+              },
+              include: { team: true }
+            }
+          }
+        } 
+      },
+      orderBy: { registeredAt: 'desc' },
+    });
+    return registrations.map((r) => {
+      const h: any = { ...r.hackathon };
+      h.mySubmission = h.submissions?.[0] || null;
+      delete h.submissions;
+      return h;
     });
   }
 }

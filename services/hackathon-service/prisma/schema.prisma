@@ -10,14 +10,19 @@ datasource db {
 model Hackathon {
   id                    String   @id @default(uuid())
   organizerId           String?
+  organizationName      String?
   title                 String
   shortDescription      String
   fullDescription       String
   bannerImage           String?
   theme                 String?
   prizePool             String?
+  tags                  String[]
+  categories            String[]
   maxTeamSize           Int      @default(4)
   minTeamSize           Int      @default(1)
+  participantCount      Int      @default(0)
+  teamsCount            Int      @default(0)
 
   registrationStartDate DateTime
   registrationEndDate   DateTime

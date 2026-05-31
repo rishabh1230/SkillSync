@@ -1,13 +1,16 @@
-import { Body, Controller, Get, Inject, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Patch, Post, Req, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard';
 import { firstValueFrom } from 'rxjs';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { S3Service } from '../s3/s3.service';
 
 @Controller('hackathons')
 export class HackathonsController {
   constructor(
     @Inject('HACKATHON_SERVICE') private readonly hackathonClient: ClientProxy,
+    private readonly s3Service: S3Service,
   ) {}
 
   @Post()
@@ -16,9 +19,27 @@ export class HackathonsController {
     return firstValueFrom(this.hackathonClient.send('HACKATHON_CREATE', { body, user: req.user }));
   }
 
+  @Post('upload')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadBanner(@UploadedFile() file: Express.Multer.File) {
+    return this.s3Service.uploadFile(file);
+  }
+
+  @Get('my')
+  @UseGuards(JwtAuthGuard)
+  async getMyHackathons(@Req() req: any) {
+    return firstValueFrom(this.hackathonClient.send('HACKATHON_GET_MY', { user: req.user }));
+  }
+
   @Get()
-  async findAll() {
-    return firstValueFrom(this.hackathonClient.send('HACKATHON_GET_ALL', {}));
+  async findAll(@Req() req: any) {
+    return firstValueFrom(this.hackathonClient.send('HACKATHON_GET_ALL', req.query));
+  }
+
+  @Get('trending')
+  async findTrending() {
+    return firstValueFrom(this.hackathonClient.send('HACKATHON_GET_TRENDING', {}));
   }
 
   @Get(':id')

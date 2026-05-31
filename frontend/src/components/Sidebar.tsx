@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { LayoutDashboard, FolderPlus, User, LogOut, Zap, Trophy } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -15,23 +16,27 @@ const Sidebar: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <aside
+    <motion.aside
+      initial={{ x: -20, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
       style={{
-        width: '240px',
+        width: '260px',
         minHeight: '100vh',
-        background: 'rgba(10,10,15,0.95)',
-        borderRight: '1px solid rgba(255,255,255,0.05)',
+        background: 'var(--bg-secondary)',
+        borderRight: '1px solid rgba(255,255,255,0.04)',
         display: 'flex',
         flexDirection: 'column',
-        padding: '1.5rem 1rem',
+        padding: '1.75rem 1.25rem',
         backdropFilter: 'blur(20px)',
         position: 'sticky',
         top: 0,
         flexShrink: 0,
+        boxShadow: '4px 0 24px rgba(0,0,0,0.2)',
       }}
     >
       {/* Logo / Brand */}
-      <div
+      <motion.div
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -44,18 +49,18 @@ const Sidebar: React.FC = () => {
       >
         <div
           style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, #06b6d4, #8b5cf6)',
+            width: '36px',
+            height: '36px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            boxShadow: '0 0 16px rgba(6,182,212,0.35)',
+            boxShadow: '0 0 20px var(--accent-glow)',
           }}
         >
-          <Zap size={18} color="#fff" />
+          <Zap size={20} color="#fff" />
         </div>
         <span
           style={{
@@ -70,7 +75,7 @@ const Sidebar: React.FC = () => {
         >
           SkillSync
         </span>
-      </div>
+      </motion.div>
 
       {/* Nav */}
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
@@ -102,24 +107,26 @@ const Sidebar: React.FC = () => {
               fontWeight: isActive ? 600 : 500,
               color: isActive ? '#fff' : 'var(--text-secondary)',
               background: isActive
-                ? 'linear-gradient(135deg, rgba(6,182,212,0.18) 0%, rgba(139,92,246,0.14) 100%)'
+                ? 'rgba(37, 99, 235, 0.15)'
                 : 'transparent',
               border: isActive
-                ? '1px solid rgba(6,182,212,0.25)'
+                ? '1px solid rgba(37, 99, 235, 0.3)'
                 : '1px solid transparent',
               textDecoration: 'none',
-              transition: 'all 0.2s',
-              boxShadow: isActive ? '0 0 12px rgba(6,182,212,0.12)' : 'none',
+              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: isActive ? '0 0 15px var(--accent-glow)' : 'none',
             })}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLAnchorElement;
+              el.style.transform = 'translateX(4px)';
               if (!el.classList.contains('active')) {
-                el.style.background = 'rgba(255,255,255,0.04)';
+                el.style.background = 'rgba(255,255,255,0.03)';
                 el.style.color = '#fff';
               }
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget as HTMLAnchorElement;
+              el.style.transform = 'translateX(0px)';
               if (!el.classList.contains('active')) {
                 el.style.background = 'transparent';
                 el.style.color = 'var(--text-secondary)';
@@ -155,7 +162,7 @@ const Sidebar: React.FC = () => {
                 width: '30px',
                 height: '30px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #06b6d4, #8b5cf6)',
+                background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -225,7 +232,7 @@ const Sidebar: React.FC = () => {
           Sign Out
         </button>
       </div>
-    </aside>
+    </motion.aside>
   );
 };
 
