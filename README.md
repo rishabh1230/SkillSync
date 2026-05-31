@@ -137,6 +137,7 @@ flowchart TD
 | **Auth Service** | Identity management, token signing, Bcrypt hashing. | PostgreSQL, Redis, RabbitMQ |
 | **User Service** | User profiles, preferences, social metrics. | PostgreSQL, RabbitMQ |
 | **Project Service** | Project lifecycle, relational constraints (Cascade Deletes), task management. | PostgreSQL, RabbitMQ |
+| **Hackathon Service** | Hackathons, Search Hackathons, Participate in Hackathons, Host hackathons, Role based management. | PostgreSQL, PQSQL fast Search|
 | **Chat Service** | Real-time messaging and dynamic WebSocket rooms. | WebSockets, Socket.IO |
 | **Notification** | Asynchronous email/push dispatch via RabbitMQ consumer queues. | RabbitMQ |
 
@@ -159,7 +160,7 @@ Create `.env` files where required. The Docker Compose configuration handles mos
 Docker Compose will build the frontend, the API Gateway, all 6 microservices, and provision the PostgreSQL and RabbitMQ containers.
 
 ```bash
-docker-compose up -d --build
+docker-compose up --build
 ```
 
 ### 4. Access the Platform
