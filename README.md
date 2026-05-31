@@ -23,7 +23,8 @@
 
 ## 📖 Overview
 <img width="1902" height="874" alt="Screenshot 2026-05-23 235657" src="https://github.com/user-attachments/assets/6df5cf61-5b60-47f9-b81a-2e5b3f892e31" />
-<img width="1911" height="874" alt="Screenshot 2026-05-23 230615" src="https://github.com/user-attachments/assets/d2c1e5ee-ef8d-4b8d-8541-f5ae3e65bcd2" />
+<img width="1919" height="876" alt="Screenshot 2026-06-01 003740" src="https://github.com/user-attachments/assets/de83f328-c2dd-447d-b5eb-87ccf8d5d913" />
+
 
 **SkillSync** is a highly scalable, distributed ecosystem engineered to orchestrate hackathons, facilitate team collaboration, and manage complex project lifecycles. 
 
