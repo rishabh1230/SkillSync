@@ -20,6 +20,13 @@ export class ProjectListener {
     return this.projectService.createProject({ ...body, ownerId: user.sub });
   }
 
+  // ✅ Create Hackathon Project
+  @MessagePattern('PROJECT_CREATE')
+  async createHackathonProject(@Payload() data: any) {
+    const { body, user } = data;
+    return this.projectService.createProject({ ...body, ownerId: user.sub });
+  }
+
   // ✅ Get My Projects
   @MessagePattern('project.getAll')
   async getAll(@Payload() data: any) {
@@ -99,5 +106,12 @@ export class ProjectListener {
     );
 
     return this.memberService.removeMember(projectId, targetUserId);
+  }
+
+  // ✅ Update Visibility (Hackathon Service)
+  @MessagePattern('PROJECT_UPDATE_VISIBILITY')
+  async updateVisibility(@Payload() data: any) {
+    const { projectId, visibility } = data;
+    return this.projectService.updateVisibility(projectId, visibility);
   }
 }

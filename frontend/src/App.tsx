@@ -9,6 +9,10 @@ import Profile from './pages/Profile';
 import CreateProject from './pages/CreateProject';
 import ProjectDetails from './pages/ProjectDetails';
 import EditProject from './pages/EditProject';
+import Hackathons from './pages/Hackathons';
+import CreateHackathon from './pages/CreateHackathon';
+import HackathonDetails from './pages/HackathonDetails';
+import SubmitProject from './pages/SubmitProject';
 
 const App: React.FC = () => {
   return (
@@ -22,6 +26,10 @@ const App: React.FC = () => {
           {/* Protected routes with sidebar layout */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/hackathons" element={<Hackathons />} />
+            <Route path="/hackathons/new" element={<CreateHackathon />} />
+            <Route path="/hackathons/:id" element={<HackathonDetails />} />
+            <Route path="/teams/:id/submit" element={<SubmitProject />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/create-project" element={<CreateProject />} />
             <Route path="/projects/:id" element={<ProjectDetails />} />

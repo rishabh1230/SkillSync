@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Hackathon {
+  id                    String   @id @default(uuid())
+  organizerId           String?
+  title                 String
+  shortDescription      String
+  fullDescription       String
+  bannerImage           String?
+  theme                 String?
+  prizePool             String?
+  maxTeamSize           Int      @default(4)
+  minTeamSize           Int      @default(1)
+
+  registrationStartDate DateTime
+  registrationEndDate   DateTime
+  hackathonStartDate    DateTime
+  round1Date            DateTime?
+  round2Date            DateTime?
+  finalRoundDate        DateTime?
+  submissionDeadline    DateTime
+  judgingStartDate      DateTime?
+  judgingEndDate        DateTime?
+  resultAnnouncementDate DateTime?
+
+  rules                 String?
+  eligibility           String?
+  resources             String?
+
+  status                String   @default("DRAFT") // DRAFT, UPCOMING, REGISTRATION_OPEN, ONGOING, JUDGING, COMPLETED
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  registrations         HackathonRegistration[]
+  teams                 Team[]
+  problemStatements     ProblemStatement[]
+  submissions           Submission[]
+  judges                Judge[]
+  winners               Winner[]
+  announcements         Announcement[]
+  joinRequests          JoinRequest[]
+}
+
+model ProblemStatement {
+  id                 String    @id @default(uuid())
+  hackathonId        String
+  title              String
+  description        String
+  requirements       String?
+  deliverables       String?
+  evaluationCriteria String?
+  difficulty         String? // EASY, MEDIUM, HARD
+  attachments        Json?     // PDF, Drive Link, etc.
+
+  hackathon          Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+}
+
+model HackathonRegistration {
+  id              String    @id @default(uuid())
+  hackathonId     String
+  userId          String
+  participantType String    @default("LOOKING_FOR_TEAM") // LOOKING_FOR_TEAM, HAVE_IDEA_LOOKING_FOR_TEAM, OPEN_TO_ANYTHING
+  registeredAt    DateTime  @default(now())
+  status          String    @default("REGISTERED") // REGISTERED, WITHDRAWN
+
+  hackathon       Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+
+  @@unique([hackathonId, userId])
+}
+
+model Team {
+  id           String    @id @default(uuid())
+  hackathonId  String
+  teamName     String
+  leaderId     String
+  maxMembers   Int       @default(4)
+  createdAt    DateTime  @default(now())
+
+  hackathon    Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  members      TeamMember[]
+  submissions  Submission[]
+  invitations  Invitation[]
+  winners      Winner[]
+  joinRequests JoinRequest[]
+
+  @@unique([hackathonId, teamName])
+}
+
+model TeamMember {
+  id        String   @id @default(uuid())
+  teamId    String
+  userId    String
+  role      String   @default("MEMBER") // LEADER, MEMBER
+  joinedAt  DateTime @default(now())
+
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+model Invitation {
+  id          String   @id @default(uuid())
+  teamId      String
+  inviterId   String
+  inviteeId   String
+  status      String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt   DateTime @default(now())
+
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, inviteeId])
+}
+
+model Submission {
+  id          String   @id @default(uuid())
+  hackathonId String
+  teamId      String
+  projectId   String   @unique // Reference to the project-service
+  status      String   @default("SUBMITTED") // DRAFT, SUBMITTED, UNDER_REVIEW, QUALIFIED, REJECTED, WINNER
+  isVisible   Boolean  @default(false) // Host can toggle project visibility during hackathon
+  submittedAt DateTime @default(now())
+
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  scores      JudgeScore[]
+}
+
+model JoinRequest {
+  id          String   @id @default(uuid())
+  hackathonId String
+  teamId      String
+  requesterId String
+  status      String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  message     String?
+  createdAt   DateTime @default(now())
+
+  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, requesterId])
+}
+
+model Judge {
+  id          String   @id @default(uuid())
+  hackathonId String
+  userId      String
+
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  scores      JudgeScore[]
+
+  @@unique([hackathonId, userId])
+}
+
+model JudgeScore {
+  id                  String   @id @default(uuid())
+  submissionId        String
+  judgeId             String
+
+  innovation          Int      @default(0) // 1-10
+  technicalComplexity Int      @default(0) // 1-10
+  uiux                Int      @default(0) // 1-10
+  businessImpact      Int      @default(0) // 1-10
+  presentation        Int      @default(0) // 1-10
+  totalScore          Int      @default(0)
+
+  feedback            String?
+
+  submission          Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  judge               Judge      @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+
+  @@unique([submissionId, judgeId])
+}
+
+model Winner {
+  id             String    @id @default(uuid())
+  hackathonId    String
+  projectId      String    // Reference to the project-service
+  teamId         String
+  rank           String    // FIRST, SECOND, THIRD, RUNNER_UP
+  specialMention String?
+
+  hackathon      Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  team           Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id          String   @id @default(uuid())
+  hackathonId String
+  title       String
+  content     String
+  createdAt   DateTime @default(now())
+
+  hackathon   Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+}

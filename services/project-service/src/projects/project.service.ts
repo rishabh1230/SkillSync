@@ -21,6 +21,10 @@ export class ProjectService {
     ownerId: string;
     videoLink?: string;
     images?: string[];
+    isHackathonProject?: boolean;
+    hackathonId?: string;
+    teamId?: string;
+    visibility?: any;
   }) {
     const project = await this.prisma.project.create({
       data,
@@ -82,6 +86,14 @@ export class ProjectService {
 
     return this.prisma.project.delete({
       where: { id },
+    });
+  }
+
+  // ✅ Update Visibility (Orchestrated by Hackathon Service or Admin)
+  async updateVisibility(id: string, visibility: any) {
+    return this.prisma.project.update({
+      where: { id },
+      data: { visibility },
     });
   }
 }

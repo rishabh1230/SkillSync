@@ -90,6 +90,24 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  hackathon-service:
+    build:
+      context: .
+      dockerfile: ./services/hackathon-service/Dockerfile
+    container_name: skillsync-hackathon-service
+    ports:
+      - "3004:3004"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/hackathon_db?schema=public
+      JWT_SECRET: supersecret
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
   api-gateway:
     build:
       context: .
@@ -102,12 +120,15 @@ services:
       AUTH_SERVICE_URL: http://auth-service:3001
       USER_SERVICE_URL: http://user-service:3002
       PROJECT_SERVICE_URL: http://project-service:3003
+      HACKATHON_SERVICE_URL: http://hackathon-service:3004
     depends_on:
       auth-service:
         condition: service_started
       user-service:
         condition: service_started
       project-service:
+        condition: service_started
+      hackathon-service:
         condition: service_started
     restart: unless-stopped
 

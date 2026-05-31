@@ -18,11 +18,16 @@ model Project {
   images      String[]
 
   status      ProjectStatus @default(DRAFT)
+  visibility  ProjectVisibility @default(PUBLIC)
+
+  isHackathonProject Boolean @default(false)
+  hackathonId        String?
+  teamId             String?
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  members     ProjectMember[]   // ✅ ADD THIS
+  members     ProjectMember[]
 
   @@index([ownerId])
   @@index([status])
@@ -53,4 +58,9 @@ enum ProjectStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+enum ProjectVisibility {
+  PUBLIC
+  PRIVATE
 }

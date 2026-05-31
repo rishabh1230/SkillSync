@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FolderPlus, User, LogOut, Zap } from 'lucide-react';
+import { LayoutDashboard, FolderPlus, User, LogOut, Zap, Trophy } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const navItems = [
   { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/create-project', icon: FolderPlus,       label: 'New Project' },
-  { to: '/profile',        icon: User,             label: 'Profile' },
+  { to: '/hackathons',     icon: Trophy,          label: 'Hackathons' },
+  { to: '/create-project', icon: FolderPlus,      label: 'New Project' },
+  { to: '/profile',        icon: User,            label: 'Profile' },
 ];
 
 const Sidebar: React.FC = () => {
