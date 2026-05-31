@@ -125,7 +125,6 @@ flowchart TD
 
 ### DevOps & Infrastructure
 - **Containerization**: Docker, Docker Compose
-- **Orchestration**: Kubernetes (Ready)
 - **Architecture Pattern**: API Gateway + Distributed Microservices
 
 ---
