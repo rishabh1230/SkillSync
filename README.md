@@ -1,10 +1,14 @@
-
 <div align="center">
   <img src="./frontend/public/logo.jpeg" alt="SkillSync Logo" width="120" style="border-radius: 20px; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4); margin-bottom: 20px;" />
 
   # 🚀 SkillSync
 
   **A Cloud-Native, Distributed Platform for Scalable Collaboration & Hackathon Management**
+  
+
+https://github.com/user-attachments/assets/120af0ab-3c05-4206-8b86-d693a1a398b3
+
+
 
   [![Architecture](https://img.shields.io/badge/Architecture-Microservices-blue?style=for-the-badge&logo=codeforces)]()
   [![Backend](https://img.shields.io/badge/Backend-NestJS-E0234E?style=for-the-badge&logo=nestjs)]()
@@ -22,9 +26,6 @@
 ---
 
 ## 📖 Overview
-<img width="1902" height="874" alt="Screenshot 2026-05-23 235657" src="https://github.com/user-attachments/assets/6df5cf61-5b60-47f9-b81a-2e5b3f892e31" />
-<img width="1919" height="876" alt="Screenshot 2026-06-01 003740" src="https://github.com/user-attachments/assets/de83f328-c2dd-447d-b5eb-87ccf8d5d913" />
-
 
 **SkillSync** is a highly scalable, distributed ecosystem engineered to orchestrate hackathons, facilitate team collaboration, and manage complex project lifecycles. 
 
