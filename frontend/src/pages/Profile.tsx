@@ -166,12 +166,17 @@ const Profile: React.FC = () => {
   const handleAddSkill = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const newSkill = prompt('Enter a new skill (e.g., React, Python):');
-      if (newSkill) setProfile(() => ({ ...profile, skills: [...(profile.skills || []), newSkill] }));
+      const val = skillInput.trim();
+      if (val && !editData.skills.includes(val)) {
+        setEditData({
+          ...editData,
+          skills: [...editData.skills, val],
+        });
+      }
       setSkillInput('');
     }
   };
-  
+
   const removeSkill = (index: number) => {
     setEditData({ ...editData, skills: editData.skills.filter((_, i) => i !== index) });
   };
