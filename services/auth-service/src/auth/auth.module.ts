@@ -12,7 +12,7 @@ import { AuthListener } from '../rmq/auth.listener';
     RmqModule,
     PrismaModule,
     JwtModule.register({
-      secret: 'SECRET_KEY',
+      secret: process.env.JWT_SECRET || 'supersecret',
       signOptions: { expiresIn: '1d' },
     }),
   ],
