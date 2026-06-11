@@ -18,6 +18,20 @@ services:
     volumes:
       - ./docker/rabbitmq.conf:/etc/rabbitmq/conf.d/10-defaults.conf
 
+  redis:
+    image: redis:7-alpine
+    container_name: skillsync-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   postgres:
     image: postgres:15
     container_name: skillsync-postgres
@@ -108,6 +122,28 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  chat-service:
+    build:
+      context: .
+      dockerfile: ./services/chat-service/Dockerfile
+    container_name: skillsync-chat-service
+    ports:
+      - "3005:3005"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/chat_db?schema=public
+      JWT_SECRET: supersecret
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+      PORT: 3005
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
   api-gateway:
     build:
       context: .
@@ -121,6 +157,8 @@ services:
       USER_SERVICE_URL: http://user-service:3002
       PROJECT_SERVICE_URL: http://project-service:3003
       HACKATHON_SERVICE_URL: http://hackathon-service:3004
+      CHAT_SERVICE_URL: http://chat-service:3005
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     depends_on:
       auth-service:
         condition: service_started
@@ -129,6 +167,8 @@ services:
       project-service:
         condition: service_started
       hackathon-service:
+        condition: service_started
+      chat-service:
         condition: service_started
     restart: unless-stopped
 
@@ -140,6 +180,7 @@ services:
       - "5173:5173"
     environment:
       VITE_API_URL: http://localhost:3000
+      VITE_CHAT_URL: http://localhost:3005
     depends_on:
       api-gateway:
         condition: service_started
@@ -147,3 +188,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:

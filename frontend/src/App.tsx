@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
+import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -13,33 +15,40 @@ import Hackathons from './pages/Hackathons';
 import CreateHackathon from './pages/CreateHackathon';
 import HackathonDetails from './pages/HackathonDetails';
 import SubmitProject from './pages/SubmitProject';
+import Chat from './pages/Chat';
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+      <SocketProvider>
+        <NotificationProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-          {/* Protected routes with sidebar layout */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/hackathons" element={<Hackathons />} />
-            <Route path="/hackathons/new" element={<CreateHackathon />} />
-            <Route path="/hackathons/:id" element={<HackathonDetails />} />
-            <Route path="/teams/:id/submit" element={<SubmitProject />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/create-project" element={<CreateProject />} />
-            <Route path="/projects/:id" element={<ProjectDetails />} />
-            <Route path="/projects/:id/edit" element={<EditProject />} />
-          </Route>
+              {/* Protected routes with sidebar layout */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/hackathons" element={<Hackathons />} />
+                <Route path="/hackathons/new" element={<CreateHackathon />} />
+                <Route path="/hackathons/:id" element={<HackathonDetails />} />
+                <Route path="/teams/:id/submit" element={<SubmitProject />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/:userId" element={<Profile />} />
+                <Route path="/create-project" element={<CreateProject />} />
+                <Route path="/projects/:id" element={<ProjectDetails />} />
+                <Route path="/projects/:id/edit" element={<EditProject />} />
+                <Route path="/chat" element={<Chat />} />
+              </Route>
 
-          {/* Catch-all */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
+              {/* Catch-all */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </NotificationProvider>
+      </SocketProvider>
     </AuthProvider>
   );
 };

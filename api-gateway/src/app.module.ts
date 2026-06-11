@@ -5,6 +5,8 @@ import { ProjectsController } from './projects/projects.controller';
 import { UsersController } from './users/users.controller';
 import { HackathonsController } from './hackathons/hackathons.controller';
 import { TeamsController } from './teams/teams.controller';
+import { ChatController } from './chat/chat.controller';
+import { NotificationsController } from './notifications/notifications.controller';
 import { S3Module } from './s3/s3.module';
 
 @Module({
@@ -47,9 +49,26 @@ import { S3Module } from './s3/s3.module';
           queueOptions: { durable: true },
         },
       },
+      {
+        name: 'CHAT_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: [process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672'],
+          queue: 'chat_queue',
+          queueOptions: { durable: true },
+        },
+      },
     ]),
   ],
 
-  controllers: [ProjectsController, AuthController, UsersController, HackathonsController, TeamsController],
+  controllers: [
+    ProjectsController,
+    AuthController,
+    UsersController,
+    HackathonsController,
+    TeamsController,
+    ChatController,
+    NotificationsController,
+  ],
 })
-export class AppModule {}
+export class AppModule {}

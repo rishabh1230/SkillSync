@@ -5,12 +5,14 @@ import {
   Calendar, Users, Target, ArrowLeft, Trophy, Clock,
   CheckCircle, AlertCircle, Eye, EyeOff, ExternalLink,
   Crown, User, Folder, Lightbulb, Search, Handshake,
-  UserPlus, ChevronDown, ChevronUp, X, Check, AlertTriangle
+  UserPlus, ChevronDown, ChevronUp, X, Check, AlertTriangle, MessageSquare
 } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import HackathonChat from '../components/HackathonChat';
+import Username from '../components/Username';
 
-type Tab = 'overview' | 'participants' | 'projects';
+type Tab = 'overview' | 'participants' | 'projects' | 'chat';
 type RegStep = 'idle' | 'choose_path' | 'team_form' | 'solo_form' | 'registered' | 'registered_solo';
 
 type ParticipantType = 'LOOKING_FOR_TEAM' | 'HAVE_IDEA_LOOKING_FOR_TEAM' | 'OPEN_TO_ANYTHING';
@@ -285,6 +287,7 @@ const HackathonDetails: React.FC = () => {
     { id: 'overview' as Tab, label: 'Overview', icon: <Target size={15} /> },
     { id: 'participants' as Tab, label: 'Participants', icon: <Users size={15} /> },
     { id: 'projects' as Tab, label: 'Projects', icon: <Folder size={15} /> },
+    { id: 'chat' as Tab, label: 'Chat', icon: <MessageSquare size={15} /> },
   ];
 
   // ── Registration Section ────────────────────────────────────────────────────
@@ -659,14 +662,46 @@ const HackathonDetails: React.FC = () => {
                               {/* Members */}
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
                                 {team.members?.map((m: any) => (
-                                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: m.role === 'LEADER' ? 'linear-gradient(135deg, var(--accent-primary), #8b5cf6)' : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                      {m.role === 'LEADER' ? <Crown size={12} color="#fff" /> : <User size={12} color="var(--text-muted)" />}
+                                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                                      <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: m.role === 'LEADER' ? 'linear-gradient(135deg, var(--accent-primary), #8b5cf6)' : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        {m.role === 'LEADER' ? <Crown size={12} color="#fff" /> : <User size={12} color="var(--text-muted)" />}
+                                      </div>
+                                      <span style={{ color: m.role === 'LEADER' ? '#fff' : 'var(--text-secondary)', fontSize: '0.83rem', minWidth: 0, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                                        <span 
+                                          onClick={() => navigate(`/profile/${m.userId}`)}
+                                          style={{ cursor: 'pointer' }}
+                                          onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                                          onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                                        >
+                                          <Username userId={m.userId} />
+                                        </span>
+                                        {m.role === 'LEADER' && <span style={{ marginLeft: '6px', fontSize: '0.68rem', color: 'var(--accent-primary)', fontWeight: 600 }}>Leader</span>}
+                                      </span>
                                     </div>
-                                    <span style={{ color: m.role === 'LEADER' ? '#fff' : 'var(--text-secondary)', fontSize: '0.83rem' }}>
-                                      {m.userId.slice(0, 8)}...
-                                      {m.role === 'LEADER' && <span style={{ marginLeft: '6px', fontSize: '0.68rem', color: 'var(--accent-primary)', fontWeight: 600 }}>Leader</span>}
-                                    </span>
+                                    {/* Action buttons */}
+                                    {user && m.userId !== user.id && (
+                                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                                        <button 
+                                          onClick={() => navigate(`/chat?userId=${m.userId}`)}
+                                          title="Send Direct Message"
+                                          style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', borderRadius: '4px', transition: 'color 0.2s, background-color 0.2s' }}
+                                          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent-primary)'; e.currentTarget.style.backgroundColor = 'rgba(6,182,212,0.1)'; }}
+                                          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                                        >
+                                          <MessageSquare size={13} />
+                                        </button>
+                                        <button 
+                                          onClick={() => navigate(`/profile/${m.userId}`)}
+                                          title="View Profile"
+                                          style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', borderRadius: '4px', transition: 'color 0.2s, background-color 0.2s' }}
+                                          onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; }}
+                                          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                                        >
+                                          <ExternalLink size={13} />
+                                        </button>
+                                      </div>
+                                    )}
                                   </div>
                                 ))}
                               </div>
@@ -717,7 +752,16 @@ const HackathonDetails: React.FC = () => {
                                         {(joinRequests[team.id] || []).map((req: any) => (
                                           <div key={req.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: req.message ? '6px' : '0' }}>
-                                              <span style={{ color: '#fff', fontSize: '0.83rem', fontWeight: 600 }}>{req.requesterId.slice(0, 12)}...</span>
+                                              <span style={{ color: '#fff', fontSize: '0.83rem', fontWeight: 600 }}>
+                                                <span 
+                                                  onClick={() => navigate(`/profile/${req.requesterId}`)}
+                                                  style={{ cursor: 'pointer' }}
+                                                  onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                                                  onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                                                >
+                                                  <Username userId={req.requesterId} />
+                                                </span>
+                                              </span>
                                               <div style={{ display: 'flex', gap: '6px' }}>
                                                 <button onClick={() => handleRespondToRequest(req.id, team.id, true)} disabled={respondingId === req.id}
                                                   style={{ padding: '4px 10px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '6px', color: 'var(--success)', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -759,16 +803,49 @@ const HackathonDetails: React.FC = () => {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
                       {soloParticipants.map((reg: any, i: number) => (
                         <motion.div key={reg.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                          style={{ padding: '16px', background: 'rgba(139,92,246,0.04)', border: '1px solid rgba(139,92,246,0.12)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, var(--accent-primary))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <User size={16} color="#fff" />
+                          style={{ padding: '16px', background: 'rgba(139,92,246,0.04)', border: '1px solid rgba(139,92,246,0.12)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, var(--accent-primary))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <User size={16} color="#fff" />
+                            </div>
+                            <div style={{ minWidth: 0 }}>
+                              <p style={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                                <span 
+                                  onClick={() => navigate(`/profile/${reg.userId}`)}
+                                  style={{ cursor: 'pointer' }}
+                                  onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                                  onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                                >
+                                  <Username userId={reg.userId} />
+                                </span>
+                              </p>
+                              <ParticipantTypePill type={reg.participantType as ParticipantType} />
+                            </div>
                           </div>
-                          <div style={{ minWidth: 0 }}>
-                            <p style={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>
-                              {reg.userId.slice(0, 10)}...
-                            </p>
-                            <ParticipantTypePill type={reg.participantType as ParticipantType} />
-                          </div>
+
+                          {/* Actions for solo participant */}
+                          {user && reg.userId !== user.id && (
+                            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                              <button 
+                                onClick={() => navigate(`/chat?userId=${reg.userId}`)}
+                                title="Send Direct Message"
+                                style={{ background: 'none', border: 'none', padding: '6px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', borderRadius: '6px', transition: 'color 0.2s, background-color 0.2s' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent-primary)'; e.currentTarget.style.backgroundColor = 'rgba(6,182,212,0.1)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                              >
+                                <MessageSquare size={14} />
+                              </button>
+                              <button 
+                                onClick={() => navigate(`/profile/${reg.userId}`)}
+                                title="View Profile"
+                                style={{ background: 'none', border: 'none', padding: '6px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', borderRadius: '6px', transition: 'color 0.2s, background-color 0.2s' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                              >
+                                <ExternalLink size={14} />
+                              </button>
+                            </div>
+                          )}
                         </motion.div>
                       ))}
                     </div>
@@ -842,7 +919,20 @@ const HackathonDetails: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── CHAT TAB (outside AnimatePresence so socket room persists) ── */}
+      {activeTab === 'chat' && id && (
+        <motion.div
+          key="chat"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <HackathonChat hackathonId={id} hackathonName={hackathon?.title} />
+        </motion.div>
+      )}
     </div>
+
   );
 };
 

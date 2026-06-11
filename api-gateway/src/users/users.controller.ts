@@ -6,6 +6,7 @@ import {
   Request,
   UseGuards,
   Inject,
+  Param,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -56,6 +57,18 @@ export class UsersController {
         authId,
         ...body,
       }),
+    );
+  }
+
+  /**
+   * GET /users/:id
+   * Returns any user's profile from the user-service by their authId/userId.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getUserProfile(@Param('id') id: string) {
+    return firstValueFrom(
+      this.userClient.send(RMQ_PATTERNS.USER_GET_PROFILE, { authId: id }),
     );
   }
 }

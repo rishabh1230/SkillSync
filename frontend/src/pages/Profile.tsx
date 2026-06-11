@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Mail, Phone, Lock, Save, Shield, CheckCircle,
   AlertCircle, Edit2, X, FolderGit2, Code, Link as LinkIcon,
-  Plus, Trash2, GraduationCap, Award
+  Plus, Trash2, GraduationCap, Award, MessageSquare
 } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -31,6 +32,10 @@ interface EducationEntry {
 
 const Profile: React.FC = () => {
   const { token, user: authUser } = useAuth();
+  const { userId } = useParams<{ userId?: string }>();
+  const navigate = useNavigate();
+
+  const isOwnProfile = !userId || userId === (authUser as any)?.id || userId === (authUser as any)?.sub;
 
   const [loading, setLoading]   = useState(true);
   const [editing, setEditing]   = useState(false);
@@ -75,13 +80,14 @@ const Profile: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await api.get('/users/profile', {
+        const url = isOwnProfile ? '/users/profile' : `/users/${userId}`;
+        const res = await api.get(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const d = res.data;
         const mappedData = {
           username: d.username ?? '',
-          email:    d.email    ?? (authUser as any)?.email ?? '',
+          email:    d.email    ?? (isOwnProfile ? (authUser as any)?.email : '') ?? '',
           phone_no: d.phone_no ?? '',
           githubUrl: d.githubUrl ?? '',
           leetcodeUrl: d.leetcodeUrl ?? '',
@@ -93,13 +99,15 @@ const Profile: React.FC = () => {
         setEditData(mappedData);
       } catch (err) {
         console.error('Failed to fetch profile', err);
-        // Fallback: pre-fill email from JWT
-        setProfile((p) => ({ ...p, email: (authUser as any)?.email ?? '' }));
+        if (isOwnProfile) {
+          // Fallback: pre-fill email from JWT
+          setProfile((p) => ({ ...p, email: (authUser as any)?.email ?? '' }));
+        }
       } finally {
         setLoading(false);
       }
     })();
-  }, [token, authUser]);
+  }, [token, authUser, userId, isOwnProfile]);
 
   /* ── update profile ── */
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -246,36 +254,38 @@ const Profile: React.FC = () => {
                 <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>Profile Details</h2>
               </div>
 
-              {!editing ? (
-                <button
-                  onClick={() => { setEditing(true); setProfMsg(''); setProfErr(''); }}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '6px',
-                    padding: '6px 14px', borderRadius: '9px',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    background: 'rgba(255,255,255,0.04)',
-                    color: 'var(--text-secondary)', cursor: 'pointer',
-                    fontSize: '0.8rem', fontWeight: 500, transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(6,182,212,0.12)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent-primary)'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-secondary)'; }}
-                >
-                  <Edit2 size={13} /> Edit
-                </button>
-              ) : (
-                <button
-                  onClick={() => { setEditing(false); setEditData(profile); setProfErr(''); }}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '6px',
-                    padding: '6px 14px', borderRadius: '9px',
-                    border: '1px solid rgba(239,68,68,0.2)',
-                    background: 'rgba(239,68,68,0.06)',
-                    color: '#f87171', cursor: 'pointer',
-                    fontSize: '0.8rem', fontWeight: 500, transition: 'all 0.2s',
-                  }}
-                >
-                  <X size={13} /> Cancel
-                </button>
+              {isOwnProfile && (
+                !editing ? (
+                  <button
+                    onClick={() => { setEditing(true); setProfMsg(''); setProfErr(''); }}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      padding: '6px 14px', borderRadius: '9px',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'rgba(255,255,255,0.04)',
+                      color: 'var(--text-secondary)', cursor: 'pointer',
+                      fontSize: '0.8rem', fontWeight: 500, transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(6,182,212,0.12)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent-primary)'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-secondary)'; }}
+                  >
+                    <Edit2 size={13} /> Edit
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => { setEditing(false); setEditData(profile); setProfErr(''); }}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      padding: '6px 14px', borderRadius: '9px',
+                      border: '1px solid rgba(239,68,68,0.2)',
+                      background: 'rgba(239,68,68,0.06)',
+                      color: '#f87171', cursor: 'pointer',
+                      fontSize: '0.8rem', fontWeight: 500, transition: 'all 0.2s',
+                    }}
+                  >
+                    <X size={13} /> Cancel
+                  </button>
+                )
               )}
             </div>
 
@@ -615,72 +625,74 @@ const Profile: React.FC = () => {
           </div>
 
           {/* ── Security Card ── */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '1.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '9px', background: 'rgba(139,92,246,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Shield size={16} color="#a78bfa" />
-              </div>
-              <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>Security Settings</h2>
-            </div>
-
-            <form onSubmit={handleUpdatePassword} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {[
-                { label: 'Current Password', key: 'old_password' as const, placeholder: '••••••••' },
-                { label: 'New Password',     key: 'new_password' as const, placeholder: 'Min. 8 characters' },
-              ].map(({ label, key, placeholder }) => (
-                <div key={key}>
-                  <label style={{ display: 'block', fontSize: '0.73rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '5px' }}>{label}</label>
-                  <div style={{ position: 'relative' }}>
-                    <Lock size={15} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-                    <input
-                      type="password"
-                      placeholder={placeholder}
-                      value={passwords[key]}
-                      onChange={(e) => setPasswords({ ...passwords, [key]: e.target.value })}
-                      style={inputStyle(false)}
-                      onFocus={(e) => { e.target.style.borderColor = '#8b5cf6'; e.target.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.12)'; }}
-                      onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
-                    />
-                  </div>
+          {isOwnProfile && (
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '1.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '9px', background: 'rgba(139,92,246,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Shield size={16} color="#a78bfa" />
                 </div>
-              ))}
+                <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>Security Settings</h2>
+              </div>
 
-              {pwErr && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', color: '#f87171', fontSize: '0.8rem' }}
-                >
-                  <AlertCircle size={14} /> {pwErr}
-                </motion.div>
-              )}
-              {pwMsg && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 14px', borderRadius: '10px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', color: '#34d399', fontSize: '0.8rem' }}
-                >
-                  <CheckCircle size={14} /> {pwMsg}
-                </motion.div>
-              )}
+              <form onSubmit={handleUpdatePassword} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {[
+                  { label: 'Current Password', key: 'old_password' as const, placeholder: '••••••••' },
+                  { label: 'New Password',     key: 'new_password' as const, placeholder: 'Min. 8 characters' },
+                ].map(({ label, key, placeholder }) => (
+                  <div key={key}>
+                    <label style={{ display: 'block', fontSize: '0.73rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '5px' }}>{label}</label>
+                    <div style={{ position: 'relative' }}>
+                      <Lock size={15} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                      <input
+                        type="password"
+                        placeholder={placeholder}
+                        value={passwords[key]}
+                        onChange={(e) => setPasswords({ ...passwords, [key]: e.target.value })}
+                        style={inputStyle(false)}
+                        onFocus={(e) => { e.target.style.borderColor = '#8b5cf6'; e.target.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.12)'; }}
+                        onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
+                      />
+                    </div>
+                  </div>
+                ))}
 
-              <button
-                type="submit"
-                disabled={savingPw}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '7px',
-                  alignSelf: 'flex-start',
-                  padding: '0.7rem 1.4rem', borderRadius: '11px', border: 'none',
-                  background: savingPw ? 'rgba(139,92,246,0.3)' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-                  color: '#fff', fontFamily: 'inherit', fontSize: '0.875rem', fontWeight: 600,
-                  cursor: savingPw ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 16px rgba(139,92,246,0.3)', transition: 'all 0.2s',
-                  marginTop: '4px',
-                }}
-                onMouseEnter={(e) => { if (!savingPw) (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'none'; }}
-              >
-                <Save size={15} />
-                {savingPw ? 'Updating…' : 'Update Password'}
-              </button>
-            </form>
-          </div>
+                {pwErr && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', color: '#f87171', fontSize: '0.8rem' }}
+                  >
+                    <AlertCircle size={14} /> {pwErr}
+                  </motion.div>
+                )}
+                {pwMsg && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 14px', borderRadius: '10px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', color: '#34d399', fontSize: '0.8rem' }}
+                  >
+                    <CheckCircle size={14} /> {pwMsg}
+                  </motion.div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={savingPw}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '7px',
+                    alignSelf: 'flex-start',
+                    padding: '0.7rem 1.4rem', borderRadius: '11px', border: 'none',
+                    background: savingPw ? 'rgba(139,92,246,0.3)' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                    color: '#fff', fontFamily: 'inherit', fontSize: '0.875rem', fontWeight: 600,
+                    cursor: savingPw ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 4px 16px rgba(139,92,246,0.3)', transition: 'all 0.2s',
+                    marginTop: '4px',
+                  }}
+                  onMouseEnter={(e) => { if (!savingPw) (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'none'; }}
+                >
+                  <Save size={15} />
+                  {savingPw ? 'Updating…' : 'Update Password'}
+                </button>
+              </form>
+            </div>
+          )}
         </div>
 
         {/* ── Right sidebar ── */}
@@ -711,6 +723,40 @@ const Profile: React.FC = () => {
               <InfoPair label="Phone" value={profile.phone_no || '—'} />
               <InfoPair label="Account" value="Member" />
             </div>
+
+            {!isOwnProfile && userId && (
+              <button
+                onClick={() => navigate(`/chat?userId=${userId}`)}
+                style={{
+                  width: '100%',
+                  marginTop: '1.25rem',
+                  padding: '9px 14px',
+                  borderRadius: '11px',
+                  background: 'linear-gradient(135deg, var(--accent-primary) 0%, #0891b2 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '0.85rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 14px rgba(6,182,212,0.3)',
+                  transition: 'transform 0.15s, box-shadow 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 6px 18px rgba(6,182,212,0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = '0 4px 14px rgba(6,182,212,0.3)';
+                }}
+              >
+                <MessageSquare size={16} /> Message
+              </button>
+            )}
             
             {(profile.githubUrl || profile.leetcodeUrl || profile.portfolioUrl) && (
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem', marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '14px' }}>

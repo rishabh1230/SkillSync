@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { LayoutDashboard, FolderPlus, User, LogOut, Zap, Trophy } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LayoutDashboard, FolderPlus, User, LogOut, Zap, Trophy, Bell, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
+import NotificationDropdown from './NotificationDropdown';
 
 const navItems = [
   { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/hackathons',     icon: Trophy,          label: 'Hackathons' },
+  { to: '/chat',           icon: MessageSquare,   label: 'Messages' },
   { to: '/create-project', icon: FolderPlus,      label: 'New Project' },
   { to: '/profile',        icon: User,            label: 'Profile' },
 ];
@@ -14,6 +17,8 @@ const navItems = [
 const Sidebar: React.FC = () => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const { unreadCount } = useNotifications();
+  const [notifOpen, setNotifOpen] = useState(false);
 
   return (
     <motion.aside
@@ -35,47 +40,106 @@ const Sidebar: React.FC = () => {
         boxShadow: '4px 0 24px rgba(0,0,0,0.2)',
       }}
     >
-      {/* Logo / Brand */}
-      <motion.div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '2.5rem',
-          padding: '0.5rem 0.75rem',
-          cursor: 'pointer',
-        }}
-        onClick={() => navigate('/dashboard')}
-      >
-        <div
+      {/* Logo / Brand + Notification Bell */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2.5rem', position: 'relative' }}>
+        <motion.div
           style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: '0 0 20px var(--accent-glow)',
+            gap: '10px',
+            padding: '0.5rem 0.75rem',
+            cursor: 'pointer',
+            flex: 1,
           }}
+          onClick={() => navigate('/dashboard')}
         >
-          <Zap size={20} color="#fff" />
+          <div
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              boxShadow: '0 0 20px var(--accent-glow)',
+            }}
+          >
+            <Zap size={20} color="#fff" />
+          </div>
+          <span
+            style={{
+              fontWeight: 700,
+              fontSize: '1.05rem',
+              background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            SkillSync
+          </span>
+        </motion.div>
+
+        {/* 🔔 Notification Bell */}
+        <div style={{ position: 'relative' }}>
+          <motion.button
+            id="notification-bell"
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setNotifOpen((v) => !v)}
+            style={{
+              background: notifOpen ? 'rgba(37,99,235,0.15)' : 'transparent',
+              border: '1px solid ' + (notifOpen ? 'rgba(37,99,235,0.3)' : 'transparent'),
+              borderRadius: '10px',
+              padding: '7px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: notifOpen ? 'var(--accent-primary)' : 'var(--text-muted)',
+              transition: 'all 0.2s',
+              position: 'relative',
+            }}
+          >
+            <Bell size={18} />
+            {/* Badge */}
+            <AnimatePresence>
+              {unreadCount > 0 && (
+                <motion.span
+                  key="badge"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  style={{
+                    position: 'absolute',
+                    top: '-4px',
+                    right: '-4px',
+                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    color: '#fff',
+                    fontSize: '0.6rem',
+                    fontWeight: 700,
+                    minWidth: '16px',
+                    height: '16px',
+                    borderRadius: '99px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 4px',
+                    boxShadow: '0 0 8px rgba(239,68,68,0.5)',
+                  }}
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+
+          {/* Dropdown */}
+          <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
         </div>
-        <span
-          style={{
-            fontWeight: 700,
-            fontSize: '1.05rem',
-            background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            letterSpacing: '-0.01em',
-          }}
-        >
-          SkillSync
-        </span>
-      </motion.div>
+      </div>
 
       {/* Nav */}
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>

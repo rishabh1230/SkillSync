@@ -2,3 +2,4 @@ CREATE DATABASE auth_db;
 CREATE DATABASE user_db;
 CREATE DATABASE project_db;
 CREATE DATABASE hackathon_db;
+CREATE DATABASE chat_db;
