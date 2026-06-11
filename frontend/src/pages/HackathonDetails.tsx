@@ -824,6 +824,7 @@ const HackathonDetails: React.FC = () => {
                           </div>
 
                           {/* Actions for solo participant */}
+                          {/* fixed profile and team member username thing instead of id*/}
                           {user && reg.userId !== user.id && (
                             <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
                               <button 
