@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Folder, LayoutGrid, Clock, TrendingUp, Layers } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Folder, LayoutGrid, Clock, TrendingUp, Layers, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 interface Project {
   id: string;
@@ -37,6 +39,8 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const { unreadCount } = useNotifications();
+  const [notifOpen, setNotifOpen] = useState(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -96,30 +100,93 @@ const Dashboard: React.FC = () => {
           </p>
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.03, y: -2, boxShadow: '0 8px 25px var(--accent-glow)' }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => navigate('/create-project')}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '0.75rem 1.5rem',
-            borderRadius: '12px',
-            border: 'none',
-            background: 'var(--accent-primary)',
-            color: '#fff',
-            fontFamily: 'inherit',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px var(--accent-glow)',
-            flexShrink: 0,
-          }}
-        >
-          <Plus size={18} />
-          New Project
-        </motion.button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0, position: 'relative' }}>
+          {/* 🔔 Notification Bell */}
+          <div style={{ position: 'relative' }}>
+            <motion.button
+              id="notification-bell"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setNotifOpen((v) => !v)}
+              style={{
+                background: notifOpen ? 'rgba(37,99,235,0.15)' : 'rgba(255,255,255,0.03)',
+                border: '1px solid ' + (notifOpen ? 'rgba(37,99,235,0.3)' : 'rgba(255,255,255,0.08)'),
+                borderRadius: '12px',
+                padding: '0.75rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: notifOpen ? 'var(--accent-primary)' : 'var(--text-muted)',
+                transition: 'all 0.2s',
+                position: 'relative',
+                height: '42px',
+                width: '42px',
+              }}
+            >
+              <Bell size={18} />
+              {/* Badge */}
+              <AnimatePresence>
+                {unreadCount > 0 && (
+                  <motion.span
+                    key="badge"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    style={{
+                      position: 'absolute',
+                      top: '-4px',
+                      right: '-4px',
+                      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                      color: '#fff',
+                      fontSize: '0.6rem',
+                      fontWeight: 700,
+                      minWidth: '16px',
+                      height: '16px',
+                      borderRadius: '99px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 4px',
+                      boxShadow: '0 0 8px rgba(239,68,68,0.5)',
+                    }}
+                  >
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.button>
+
+            {/* Dropdown */}
+            <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.03, y: -2, boxShadow: '0 8px 25px var(--accent-glow)' }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => navigate('/create-project')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '12px',
+              border: 'none',
+              background: 'var(--accent-primary)',
+              color: '#fff',
+              fontFamily: 'inherit',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              boxShadow: '0 4px 15px var(--accent-glow)',
+              height: '42px',
+              flexShrink: 0,
+            }}
+          >
+            <Plus size={18} />
+            New Project
+          </motion.button>
+        </div>
       </motion.div>
 
       {/* ── Stats strip ── */}
