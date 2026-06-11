@@ -1,10 +1,14 @@
-
 <div align="center">
   <img src="./frontend/public/logo.jpeg" alt="SkillSync Logo" width="120" style="border-radius: 20px; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4); margin-bottom: 20px;" />
 
   # 🚀 SkillSync
 
   **A Cloud-Native, Distributed Platform for Scalable Collaboration & Hackathon Management**
+  
+
+https://github.com/user-attachments/assets/120af0ab-3c05-4206-8b86-d693a1a398b3
+
+
 
   [![Architecture](https://img.shields.io/badge/Architecture-Microservices-blue?style=for-the-badge&logo=codeforces)]()
   [![Backend](https://img.shields.io/badge/Backend-NestJS-E0234E?style=for-the-badge&logo=nestjs)]()
@@ -22,8 +26,6 @@
 ---
 
 ## 📖 Overview
-<img width="1902" height="874" alt="Screenshot 2026-05-23 235657" src="https://github.com/user-attachments/assets/6df5cf61-5b60-47f9-b81a-2e5b3f892e31" />
-<img width="1911" height="874" alt="Screenshot 2026-05-23 230615" src="https://github.com/user-attachments/assets/d2c1e5ee-ef8d-4b8d-8541-f5ae3e65bcd2" />
 
 **SkillSync** is a highly scalable, distributed ecosystem engineered to orchestrate hackathons, facilitate team collaboration, and manage complex project lifecycles. 
 
@@ -124,7 +126,6 @@ flowchart TD
 
 ### DevOps & Infrastructure
 - **Containerization**: Docker, Docker Compose
-- **Orchestration**: Kubernetes (Ready)
 - **Architecture Pattern**: API Gateway + Distributed Microservices
 
 ---
@@ -137,6 +138,7 @@ flowchart TD
 | **Auth Service** | Identity management, token signing, Bcrypt hashing. | PostgreSQL, Redis, RabbitMQ |
 | **User Service** | User profiles, preferences, social metrics. | PostgreSQL, RabbitMQ |
 | **Project Service** | Project lifecycle, relational constraints (Cascade Deletes), task management. | PostgreSQL, RabbitMQ |
+| **Hackathon Service** | Hackathons, Search Hackathons, Participate in Hackathons, Host hackathons, Role based management. | PostgreSQL, PQSQL fast Search|
 | **Chat Service** | Real-time messaging and dynamic WebSocket rooms. | WebSockets, Socket.IO |
 | **Notification** | Asynchronous email/push dispatch via RabbitMQ consumer queues. | RabbitMQ |
 
@@ -159,7 +161,7 @@ Create `.env` files where required. The Docker Compose configuration handles mos
 Docker Compose will build the frontend, the API Gateway, all 6 microservices, and provision the PostgreSQL and RabbitMQ containers.
 
 ```bash
-docker-compose up -d --build
+docker-compose up --build
 ```
 
 ### 4. Access the Platform
