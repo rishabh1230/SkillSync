@@ -1,7 +1,10 @@
-<img width="100" height="100" align="center" alt="download" src="https://github.com/user-attachments/assets/df540ec8-fb3c-495f-9f5c-17c0eadf52b3" />
+<div align="center">
 
+# <img width="40" height="40" alt="SkillSync Logo" src="https://github.com/user-attachments/assets/df540ec8-fb3c-495f-9f5c-17c0eadf52b3" /> SkillSync
 
-  # 🚀 SkillSync
+### Connect • Collaborate • Create
+
+</div>
 
   **A Cloud-Native, Distributed Platform for Scalable Collaboration & Hackathon Management**
   
