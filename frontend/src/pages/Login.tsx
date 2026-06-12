@@ -6,11 +6,11 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
 const Login: React.FC = () => {
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPw, setShowPw]     = useState(false);
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [showPw, setShowPw] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -78,7 +78,7 @@ const Login: React.FC = () => {
           style={{
             background: 'rgba(12,12,20,0.85)',
             backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.07)',
+            border: 'none',
             borderRadius: '24px',
             padding: '2.5rem',
             boxShadow: '0 32px 80px rgba(0,0,0,0.5)',

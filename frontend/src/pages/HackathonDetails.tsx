@@ -24,7 +24,7 @@ const PARTICIPANT_TYPES: { value: ParticipantType; label: string; desc: string; 
     desc: "I'm skilled and searching for a team to join",
     icon: <Search size={16} />,
     color: 'var(--accent-primary)',
-    bg: 'rgba(37,99,235,0.1)',
+    bg: 'rgba(163,230,53,0.1)',
   },
   {
     value: 'HAVE_IDEA_LOOKING_FOR_TEAM',
@@ -47,7 +47,7 @@ const PARTICIPANT_TYPES: { value: ParticipantType; label: string; desc: string; 
 const ParticipantTypePill: React.FC<{ type: ParticipantType }> = ({ type }) => {
   const t = PARTICIPANT_TYPES.find(p => p.value === type) || PARTICIPANT_TYPES[0];
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 10px', background: t.bg, color: t.color, borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, border: `1px solid ${t.color}40` }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 10px', background: t.bg, color: t.color, borderRadius: '24px', fontSize: '0.72rem', fontWeight: 600, border: `1px solid ${t.color}40` }}>
       {t.icon} {t.label}
     </span>
   );
@@ -260,7 +260,7 @@ const HackathonDetails: React.FC = () => {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-          style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid rgba(37,99,235,0.2)', borderTop: '3px solid var(--accent-primary)' }} />
+          style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid rgba(163,230,53,0.2)', borderTop: '3px solid var(--accent-primary)' }} />
       </div>
     );
   }
@@ -294,7 +294,7 @@ const HackathonDetails: React.FC = () => {
   const renderRegistration = () => {
     if (isHost) {
       return (
-        <div style={{ padding: '12px', background: 'rgba(37,99,235,0.07)', borderRadius: '10px', border: '1px solid rgba(37,99,235,0.2)', textAlign: 'center' }}>
+        <div style={{ padding: '12px', background: 'rgba(163,230,53,0.07)', borderRadius: '10px', border: '1px solid rgba(163,230,53,0.2)', textAlign: 'center' }}>
           <p style={{ color: 'var(--accent-primary)', fontWeight: 600, fontSize: '0.88rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             <Crown size={14} /> You are the organizer
           </p>
@@ -357,7 +357,7 @@ const HackathonDetails: React.FC = () => {
     if (step === 'team_form') {
       return (
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-          style={{ padding: '16px', background: 'rgba(37,99,235,0.05)', border: '1px solid rgba(37,99,235,0.25)', borderRadius: '12px' }}>
+          style={{ padding: '16px', background: 'rgba(163,230,53,0.05)', border: '1px solid rgba(163,230,53,0.25)', borderRadius: '12px' }}>
           <h4 style={{ color: '#fff', fontWeight: 700, marginBottom: '14px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Crown size={15} color="var(--accent-primary)" /> Create Your Team
           </h4>
@@ -367,7 +367,7 @@ const HackathonDetails: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
             {PARTICIPANT_TYPES.map(pt => (
               <button key={pt.value} onClick={() => setParticipantType(pt.value)}
-                style={{ padding: '8px 12px', background: participantType === pt.value ? pt.bg : 'rgba(255,255,255,0.03)', border: `1px solid ${participantType === pt.value ? pt.color : 'rgba(255,255,255,0.08)'}`, borderRadius: '8px', color: participantType === pt.value ? pt.color : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.83rem', fontWeight: participantType === pt.value ? 600 : 400, transition: 'all 0.15s' }}>
+                style={{ padding: '8px 12px', background: participantType === pt.value ? pt.bg : 'var(--bg-secondary)', border: `1px solid ${participantType === pt.value ? pt.color : 'rgba(255,255,255,0.08)'}`, borderRadius: '8px', color: participantType === pt.value ? pt.color : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.83rem', fontWeight: participantType === pt.value ? 600 : 400, transition: 'all 0.15s' }}>
                 {pt.icon} {pt.label}
               </button>
             ))}
@@ -377,7 +377,7 @@ const HackathonDetails: React.FC = () => {
           <input type="text" placeholder="Enter team name..." value={teamName} autoFocus
             onChange={(e) => { setTeamName(e.target.value); setRegError(''); }}
             onKeyDown={(e) => e.key === 'Enter' && handleCreateTeam()}
-            style={{ width: '100%', padding: '10px 13px', background: 'rgba(0,0,0,0.4)', border: `1px solid ${regError ? '#f87171' : 'rgba(37,99,235,0.35)'}`, borderRadius: '8px', color: '#fff', fontSize: '0.88rem', outline: 'none', marginBottom: regError ? '6px' : '12px', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px 13px', background: 'rgba(0,0,0,0.4)', border: `1px solid ${regError ? '#f87171' : 'rgba(163,230,53,0.35)'}`, borderRadius: '8px', color: '#fff', fontSize: '0.88rem', outline: 'none', marginBottom: regError ? '6px' : '12px', boxSizing: 'border-box' }}
           />
           {regError && <p style={{ color: '#f87171', fontSize: '0.78rem', marginBottom: '10px' }}>{regError}</p>}
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -386,7 +386,7 @@ const HackathonDetails: React.FC = () => {
               Cancel
             </button>
             <button onClick={handleCreateTeam} disabled={registering || !teamName.trim()}
-              style={{ flex: 2, padding: '9px', background: registering || !teamName.trim() ? 'rgba(37,99,235,0.3)' : 'var(--accent-primary)', color: '#fff', border: 'none', borderRadius: '8px', cursor: registering || !teamName.trim() ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: '0.88rem' }}>
+              style={{ flex: 2, padding: '9px', background: registering || !teamName.trim() ? 'rgba(163,230,53,0.3)' : 'var(--accent-primary)', color: '#fff', border: 'none', borderRadius: '8px', cursor: registering || !teamName.trim() ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: '0.88rem' }}>
               {registering ? 'Creating...' : 'Create Team'}
             </button>
           </div>
@@ -406,7 +406,7 @@ const HackathonDetails: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
             {PARTICIPANT_TYPES.map(pt => (
               <button key={pt.value} onClick={() => setParticipantType(pt.value)}
-                style={{ padding: '10px 14px', background: participantType === pt.value ? pt.bg : 'rgba(255,255,255,0.03)', border: `1px solid ${participantType === pt.value ? pt.color : 'rgba(255,255,255,0.08)'}`, borderRadius: '10px', color: participantType === pt.value ? pt.color : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s' }}>
+                style={{ padding: '10px 14px', background: participantType === pt.value ? pt.bg : 'var(--bg-secondary)', border: `1px solid ${participantType === pt.value ? pt.color : 'rgba(255,255,255,0.08)'}`, borderRadius: '10px', color: participantType === pt.value ? pt.color : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: participantType === pt.value ? 700 : 500, fontSize: '0.88rem', marginBottom: '3px' }}>
                   {pt.icon} {pt.label}
                 </div>
@@ -440,16 +440,16 @@ const HackathonDetails: React.FC = () => {
       </button>
 
       {/* Banner */}
-      <div style={{ 
-        height: '260px', borderRadius: '20px 20px 0 0', 
-        backgroundImage: hackathon.bannerImage ? `url(${hackathon.bannerImage})` : 'linear-gradient(135deg, #0f172a 0%, #1e1a3a 50%, #0f172a 100%)', 
+      <div style={{
+        height: '260px', borderRadius: '20px 20px 0 0',
+        backgroundImage: hackathon.bannerImage ? `url(${hackathon.bannerImage})` : 'linear-gradient(135deg, #0f172a 0%, #1e1a3a 50%, #0f172a 100%)',
         backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
-        position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', borderBottom: 'none' 
+        position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', borderBottom: 'none'
       }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.85))' }} />
         <div style={{ position: 'absolute', bottom: '24px', left: '28px', right: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
-            <span style={{ display: 'inline-block', padding: '4px 12px', background: isCompleted ? 'rgba(16,185,129,0.2)' : 'rgba(37,99,235,0.2)', color: isCompleted ? 'var(--success)' : 'var(--accent-primary)', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 700, border: `1px solid ${isCompleted ? 'var(--success)' : 'var(--accent-primary)'}`, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '8px' }}>
+            <span style={{ display: 'inline-block', padding: '4px 12px', background: isCompleted ? 'rgba(16,185,129,0.2)' : 'rgba(163,230,53,0.2)', color: isCompleted ? 'var(--success)' : 'var(--accent-primary)', borderRadius: '24px', fontSize: '0.7rem', fontWeight: 700, border: `1px solid ${isCompleted ? 'var(--success)' : 'var(--accent-primary)'}`, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '8px' }}>
               {hackathon.status}
             </span>
             <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.5)', margin: 0, marginBottom: '6px' }}>{hackathon.title}</h1>
@@ -459,7 +459,7 @@ const HackathonDetails: React.FC = () => {
             {/* Tags */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {(hackathon.tags || []).map((tag: string, i: number) => (
-                <span key={i} style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', color: '#fff', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, border: '1px solid rgba(255,255,255,0.2)' }}>
+                <span key={i} style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', color: '#fff', borderRadius: '24px', fontSize: '0.75rem', fontWeight: 600, border: '1px solid rgba(255,255,255,0.2)' }}>
                   {tag}
                 </span>
               ))}
@@ -475,10 +475,10 @@ const HackathonDetails: React.FC = () => {
       </div>
 
       {/* Tab Bar */}
-      <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderTop: 'none', borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px', padding: '6px', marginBottom: '28px' }}>
+      <div style={{ display: 'flex', gap: '2px', background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.08)', borderTop: 'none', borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px', padding: '6px', marginBottom: '28px' }}>
         {tabs.map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-            style={{ flex: 1, padding: '10px 16px', background: activeTab === tab.id ? 'rgba(37,99,235,0.12)' : 'transparent', color: activeTab === tab.id ? 'var(--accent-primary)' : 'var(--text-muted)', border: activeTab === tab.id ? '1px solid rgba(37,99,235,0.25)' : '1px solid transparent', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', fontWeight: activeTab === tab.id ? 600 : 400, fontSize: '0.88rem', transition: 'all 0.2s' }}>
+            style={{ flex: 1, padding: '10px 16px', background: activeTab === tab.id ? 'rgba(163,230,53,0.12)' : 'transparent', color: activeTab === tab.id ? 'var(--accent-primary)' : 'var(--text-muted)', border: activeTab === tab.id ? '1px solid rgba(163,230,53,0.25)' : '1px solid transparent', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', fontWeight: activeTab === tab.id ? 600 : 400, fontSize: '0.88rem', transition: 'all 0.2s' }}>
             {tab.icon} {tab.label}
           </button>
         ))}
@@ -488,13 +488,13 @@ const HackathonDetails: React.FC = () => {
         {/* ── OVERVIEW ── */}
         {activeTab === 'overview' && (
           <motion.div key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            
+
             {/* Timeline */}
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '28px 36px', marginBottom: '28px', position: 'relative', overflow: 'hidden' }}>
               <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Clock size={18} color="var(--accent-primary)" /> Hackathon Timeline
               </h3>
-              
+
               <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
                 {[
                   { label: 'Registration Starts', date: hackathon.registrationStartDate, step: 1 },
@@ -505,8 +505,8 @@ const HackathonDetails: React.FC = () => {
                   const now = new Date().getTime();
                   const itemDate = new Date(item.date).getTime();
                   const isPast = now > itemDate;
-                  const isCurrent = (index === 0 && now < new Date(arr[1].date).getTime()) || 
-                                    (index > 0 && now >= itemDate && (index === arr.length - 1 || now < new Date(arr[index + 1].date).getTime()));
+                  const isCurrent = (index === 0 && now < new Date(arr[1].date).getTime()) ||
+                    (index > 0 && now >= itemDate && (index === arr.length - 1 || now < new Date(arr[index + 1].date).getTime()));
 
                   return (
                     <div key={item.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, position: 'relative' }}>
@@ -514,7 +514,7 @@ const HackathonDetails: React.FC = () => {
                       {index < arr.length - 1 && (
                         <div style={{ position: 'absolute', top: '12px', left: '50%', width: '100%', height: '2px', background: isPast ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)', zIndex: -1 }} />
                       )}
-                      
+
                       {/* Node */}
                       <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: isPast || isCurrent ? 'var(--accent-primary)' : '#11131b', border: `2px solid ${isPast || isCurrent ? 'var(--accent-primary)' : 'rgba(255,255,255,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px', position: 'relative' }}>
                         {isCurrent && (
@@ -523,7 +523,7 @@ const HackathonDetails: React.FC = () => {
                         {(isPast && !isCurrent) && <CheckCircle size={14} color="#fff" />}
                         {isCurrent && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#fff' }} />}
                       </div>
-                      
+
                       <div style={{ textAlign: 'center' }}>
                         <p style={{ color: isCurrent ? '#fff' : 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: isCurrent ? 700 : 500, marginBottom: '4px' }}>{item.label}</p>
                         <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>{new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
@@ -537,8 +537,8 @@ const HackathonDetails: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '28px', alignItems: 'start' }}>
               <div>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: 1.7, marginBottom: '28px' }}>{hackathon.shortDescription}</p>
-                
-                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '14px', padding: '22px', border: '1px solid rgba(255,255,255,0.07)', marginBottom: '20px' }}>
+
+                <div style={{ background: 'var(--bg-secondary)', borderRadius: '14px', padding: '22px', border: 'none', marginBottom: '20px' }}>
                   <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>About</h3>
                   <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.92rem', whiteSpace: 'pre-wrap' }}>{hackathon.fullDescription}</p>
                 </div>
@@ -566,7 +566,7 @@ const HackathonDetails: React.FC = () => {
                     <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: 700, marginBottom: '14px' }}>Problem Statements</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {hackathon.problemStatements.map((p: any, i: number) => (
-                        <div key={p.id || i} style={{ padding: '16px', background: 'rgba(37,99,235,0.04)', borderRadius: '12px', border: '1px solid rgba(37,99,235,0.12)' }}>
+                        <div key={p.id || i} style={{ padding: '16px', background: 'rgba(163,230,53,0.04)', borderRadius: '12px', border: '1px solid rgba(163,230,53,0.12)' }}>
                           <h4 style={{ color: 'var(--accent-primary)', marginBottom: '6px', fontWeight: 600 }}>{p.title}</h4>
                           <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.6 }}>{p.description}</p>
                         </div>
@@ -577,11 +577,11 @@ const HackathonDetails: React.FC = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '22px' }}>
+                <div style={{ background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '22px' }}>
                   <h3 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, marginBottom: '18px' }}>Details</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '13px', marginBottom: '22px' }}>
                     {[
-                      { icon: <Calendar size={15} />, color: 'var(--accent-primary)', bg: 'rgba(37,99,235,0.1)', label: 'Starts', value: new Date(hackathon.hackathonStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
+                      { icon: <Calendar size={15} />, color: 'var(--accent-primary)', bg: 'rgba(163,230,53,0.1)', label: 'Starts', value: new Date(hackathon.hackathonStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
                       { icon: <Clock size={15} />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', label: 'Deadline', value: new Date(hackathon.submissionDeadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
                       { icon: <Users size={15} />, color: 'var(--success)', bg: 'rgba(16,185,129,0.1)', label: 'Team Size', value: `${hackathon.minTeamSize}–${hackathon.maxTeamSize} members` },
                       ...(hackathon.theme ? [{ icon: <Target size={15} />, color: '#fbbf24', bg: 'rgba(251,191,36,0.1)', label: 'Theme', value: hackathon.theme }] : []),
@@ -598,7 +598,7 @@ const HackathonDetails: React.FC = () => {
                   {renderRegistration()}
                 </div>
 
-                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '18px' }}>
+                <div style={{ background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '18px' }}>
                   <h3 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, marginBottom: '14px' }}>Stats</h3>
                   {[
                     { label: 'Teams', value: hackathon.teams?.length ?? 0 },
@@ -641,18 +641,18 @@ const HackathonDetails: React.FC = () => {
 
                         return (
                           <motion.div key={team.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', overflow: 'hidden' }}>
+                            style={{ background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', overflow: 'hidden' }}>
                             <div style={{ padding: '18px' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                                 <h3 style={{ color: '#fff', fontWeight: 700, fontSize: '1rem' }}>{team.teamName}</h3>
                                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '3px 9px', borderRadius: '20px' }}>
+                                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '3px 9px', borderRadius: '24px' }}>
                                     {team.members?.length || 0}/{team.maxMembers} members
                                   </span>
                                   {/* Leader: pending requests badge */}
                                   {isLeader && pendingCount > 0 && (
                                     <button onClick={() => handleToggleRequests(team.id)}
-                                      style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 9px', background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.4)', borderRadius: '20px', color: '#fbbf24', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700 }}>
+                                      style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 9px', background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.4)', borderRadius: '24px', color: '#fbbf24', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700 }}>
                                       {pendingCount} request{pendingCount !== 1 ? 's' : ''} {isExpanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
                                     </button>
                                   )}
@@ -668,7 +668,7 @@ const HackathonDetails: React.FC = () => {
                                         {m.role === 'LEADER' ? <Crown size={12} color="#fff" /> : <User size={12} color="var(--text-muted)" />}
                                       </div>
                                       <span style={{ color: m.role === 'LEADER' ? '#fff' : 'var(--text-secondary)', fontSize: '0.83rem', minWidth: 0, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                                        <span 
+                                        <span
                                           onClick={() => navigate(`/profile/${m.userId}`)}
                                           style={{ cursor: 'pointer' }}
                                           onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
@@ -682,7 +682,7 @@ const HackathonDetails: React.FC = () => {
                                     {/* Action buttons */}
                                     {user && m.userId !== user.id && (
                                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-                                        <button 
+                                        <button
                                           onClick={() => navigate(`/chat?userId=${m.userId}`)}
                                           title="Send Direct Message"
                                           style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', borderRadius: '4px', transition: 'color 0.2s, background-color 0.2s' }}
@@ -691,7 +691,7 @@ const HackathonDetails: React.FC = () => {
                                         >
                                           <MessageSquare size={13} />
                                         </button>
-                                        <button 
+                                        <button
                                           onClick={() => navigate(`/profile/${m.userId}`)}
                                           title="View Profile"
                                           style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', borderRadius: '4px', transition: 'color 0.2s, background-color 0.2s' }}
@@ -714,7 +714,7 @@ const HackathonDetails: React.FC = () => {
                                       placeholder="Optional message to the team leader..."
                                       value={requestMessage}
                                       onChange={(e) => setRequestMessage(e.target.value)}
-                                      style={{ width: '100%', padding: '8px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '8px', color: '#fff', fontSize: '0.83rem', outline: 'none', resize: 'none', height: '60px', marginBottom: '8px', boxSizing: 'border-box' }}
+                                      style={{ width: '100%', padding: '8px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(163,230,53,0.3)', borderRadius: '8px', color: '#fff', fontSize: '0.83rem', outline: 'none', resize: 'none', height: '60px', marginBottom: '8px', boxSizing: 'border-box' }}
                                     />
                                     <div style={{ display: 'flex', gap: '6px' }}>
                                       <button onClick={() => { setRequestingTo(null); setRequestMessage(''); }}
@@ -722,14 +722,14 @@ const HackathonDetails: React.FC = () => {
                                         Cancel
                                       </button>
                                       <button onClick={() => handleSendJoinRequest(team.id)} disabled={requestingTeamId === team.id}
-                                        style={{ flex: 2, padding: '8px', background: requestingTeamId === team.id ? 'rgba(37,99,235,0.3)' : 'var(--accent-primary)', color: '#fff', border: 'none', borderRadius: '7px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem' }}>
+                                        style={{ flex: 2, padding: '8px', background: requestingTeamId === team.id ? 'rgba(163,230,53,0.3)' : 'var(--accent-primary)', color: '#fff', border: 'none', borderRadius: '7px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem' }}>
                                         {requestingTeamId === team.id ? 'Sending...' : 'Send Request'}
                                       </button>
                                     </div>
                                   </div>
                                 ) : (
                                   <button onClick={() => setRequestingTo(team.id)}
-                                    style={{ width: '100%', padding: '8px', background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', color: 'var(--accent-primary)', cursor: 'pointer', fontWeight: 600, fontSize: '0.83rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                    style={{ width: '100%', padding: '8px', background: 'rgba(163,230,53,0.08)', border: '1px solid rgba(163,230,53,0.2)', borderRadius: '8px', color: 'var(--accent-primary)', cursor: 'pointer', fontWeight: 600, fontSize: '0.83rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                                     <UserPlus size={14} /> Request to Join
                                   </button>
                                 )
@@ -750,10 +750,10 @@ const HackathonDetails: React.FC = () => {
                                     ) : (
                                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                         {(joinRequests[team.id] || []).map((req: any) => (
-                                          <div key={req.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)' }}>
+                                          <div key={req.id} style={{ padding: '10px 12px', background: 'var(--bg-secondary)', borderRadius: '8px', border: 'none' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: req.message ? '6px' : '0' }}>
                                               <span style={{ color: '#fff', fontSize: '0.83rem', fontWeight: 600 }}>
-                                                <span 
+                                                <span
                                                   onClick={() => navigate(`/profile/${req.requesterId}`)}
                                                   style={{ cursor: 'pointer' }}
                                                   onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
@@ -810,7 +810,7 @@ const HackathonDetails: React.FC = () => {
                             </div>
                             <div style={{ minWidth: 0 }}>
                               <p style={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                                <span 
+                                <span
                                   onClick={() => navigate(`/profile/${reg.userId}`)}
                                   style={{ cursor: 'pointer' }}
                                   onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
@@ -827,7 +827,7 @@ const HackathonDetails: React.FC = () => {
                           {/* fixed profile and team member username thing instead of id*/}
                           {user && reg.userId !== user.id && (
                             <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-                              <button 
+                              <button
                                 onClick={() => navigate(`/chat?userId=${reg.userId}`)}
                                 title="Send Direct Message"
                                 style={{ background: 'none', border: 'none', padding: '6px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', borderRadius: '6px', transition: 'color 0.2s, background-color 0.2s' }}
@@ -836,7 +836,7 @@ const HackathonDetails: React.FC = () => {
                               >
                                 <MessageSquare size={14} />
                               </button>
-                              <button 
+                              <button
                                 onClick={() => navigate(`/profile/${reg.userId}`)}
                                 title="View Profile"
                                 style={{ background: 'none', border: 'none', padding: '6px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', borderRadius: '6px', transition: 'color 0.2s, background-color 0.2s' }}
@@ -870,8 +870,8 @@ const HackathonDetails: React.FC = () => {
                   {projectsData.isCompleted
                     ? <><CheckCircle size={16} color="var(--success)" /><span style={{ color: 'var(--success)', fontSize: '0.88rem', fontWeight: 600 }}>Hackathon complete — all projects are publicly visible, ordered by submission time.</span></>
                     : projectsData.isHost
-                    ? <><Eye size={16} color="#fbbf24" /><span style={{ color: '#fbbf24', fontSize: '0.88rem', fontWeight: 600 }}>Toggle visibility per project to share with participants during the hackathon.</span></>
-                    : <><Clock size={16} color="#fbbf24" /><span style={{ color: '#fbbf24', fontSize: '0.88rem' }}>Projects are restricted during the hackathon. The host controls visibility.</span></>
+                      ? <><Eye size={16} color="#fbbf24" /><span style={{ color: '#fbbf24', fontSize: '0.88rem', fontWeight: 600 }}>Toggle visibility per project to share with participants during the hackathon.</span></>
+                      : <><Clock size={16} color="#fbbf24" /><span style={{ color: '#fbbf24', fontSize: '0.88rem' }}>Projects are restricted during the hackathon. The host controls visibility.</span></>
                   }
                 </div>
 
@@ -884,7 +884,7 @@ const HackathonDetails: React.FC = () => {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                     {projectsData.submissions.map((sub: any, i: number) => (
                       <motion.div key={sub.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                        style={{ background: sub.isMine ? 'rgba(16,185,129,0.05)' : 'rgba(255,255,255,0.03)', border: `1px solid ${sub.isMine ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: '14px', padding: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                        style={{ background: sub.isMine ? 'rgba(16,185,129,0.05)' : 'var(--bg-secondary)', border: `1px solid ${sub.isMine ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: '14px', padding: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
                           <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: sub.isMine ? 'linear-gradient(135deg, #10b981, #059669)' : i === 0 ? 'linear-gradient(135deg, #fbbf24, var(--accent-secondary))' : i === 1 ? 'linear-gradient(135deg, #9ca3af, #6b7280)' : i === 2 ? 'linear-gradient(135deg, #d97706, #b45309)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: (sub.isMine || i < 3) ? '#fff' : 'var(--text-muted)', fontSize: '0.9rem', flexShrink: 0 }}>
                             {sub.isMine ? '★' : `#${i + 1}`}
@@ -907,7 +907,7 @@ const HackathonDetails: React.FC = () => {
                             </button>
                           )}
                           <button onClick={() => navigate(`/projects/${sub.projectId}`)}
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 13px', background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.25)', borderRadius: '8px', color: 'var(--accent-primary)', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600 }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 13px', background: 'rgba(163,230,53,0.1)', border: '1px solid rgba(163,230,53,0.25)', borderRadius: '8px', color: 'var(--accent-primary)', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600 }}>
                             <ExternalLink size={13} /> View
                           </button>
                         </div>

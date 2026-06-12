@@ -35,7 +35,7 @@ const getStatusInfo = (status: string) => {
   switch (status) {
     case 'REGISTRATION_OPEN': return { bg: 'rgba(16,185,129,0.15)', color: '#10b981', label: 'Registration Open' };
     case 'ACTIVE':
-    case 'ONGOING':           return { bg: 'rgba(37,99,235,0.15)',  color: '#3b82f6', label: 'Active' };
+    case 'ONGOING':           return { bg: 'rgba(163,230,53,0.15)',  color: 'var(--success)', label: 'Active' };
     case 'JUDGING':           return { bg: 'rgba(139,92,246,0.15)', color: '#8b5cf6', label: 'Judging' };
     case 'COMPLETED':         return { bg: 'rgba(107,114,128,0.15)',color: '#9ca3af', label: 'Completed' };
     case 'UPCOMING':          return { bg: 'rgba(245,158,11,0.15)', color: '#f59e0b', label: 'Upcoming' };
@@ -55,9 +55,9 @@ const HackathonCard: React.FC<{ h: Hackathon; featured?: boolean }> = ({ h, feat
       variants={itemVars}
       whileHover={{ y: -6, boxShadow: `0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px ${s.color}40` }}
       style={{
-        background: 'rgba(255,255,255,0.03)',
+        background: 'var(--bg-secondary)',
         border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: '18px',
+        borderRadius: '24px',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
@@ -66,7 +66,7 @@ const HackathonCard: React.FC<{ h: Hackathon; featured?: boolean }> = ({ h, feat
       }}
     >
       {/* ── Banner ── */}
-      <div style={{ position: 'relative', paddingTop: '56.25%', background: 'rgba(255,255,255,0.03)', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', paddingTop: '56.25%', background: 'var(--bg-secondary)', overflow: 'hidden' }}>
         {h.bannerImage && !imgErr ? (
           <img
             src={h.bannerImage}
@@ -82,11 +82,11 @@ const HackathonCard: React.FC<{ h: Hackathon; featured?: boolean }> = ({ h, feat
         {/* gradient overlay */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(17,19,27,0.95) 0%, rgba(17,19,27,0.2) 60%, transparent 100%)' }} />
         {/* Status badge */}
-        <span style={{ position: 'absolute', top: '12px', right: '12px', padding: '4px 12px', background: s.bg, color: s.color, borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700, backdropFilter: 'blur(8px)', border: `1px solid ${s.color}40` }}>
+        <span style={{ position: 'absolute', top: '12px', right: '12px', padding: '4px 12px', background: s.bg, color: s.color, borderRadius: '24px', fontSize: '0.72rem', fontWeight: 700, backdropFilter: 'blur(8px)', border: `1px solid ${s.color}40` }}>
           {s.label}
         </span>
         {featured && (
-          <span style={{ position: 'absolute', top: '12px', left: '12px', padding: '4px 12px', background: 'rgba(245,158,11,0.15)', color: '#f59e0b', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700, backdropFilter: 'blur(8px)', border: '1px solid rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span style={{ position: 'absolute', top: '12px', left: '12px', padding: '4px 12px', background: 'rgba(245,158,11,0.15)', color: '#f59e0b', borderRadius: '24px', fontSize: '0.72rem', fontWeight: 700, backdropFilter: 'blur(8px)', border: '1px solid rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', gap: '4px' }}>
             <Flame size={11} /> Trending
           </span>
         )}
@@ -106,7 +106,7 @@ const HackathonCard: React.FC<{ h: Hackathon; featured?: boolean }> = ({ h, feat
         {/* Tags */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
           {(h.tags && h.tags.length > 0 ? h.tags : []).slice(0, 4).map((tag, i) => (
-            <span key={i} style={{ fontSize: '0.7rem', padding: '3px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <span key={i} style={{ fontSize: '0.7rem', padding: '3px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '24px', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.08)' }}>
               {tag}
             </span>
           ))}
@@ -287,7 +287,7 @@ const Hackathons: React.FC = () => {
 
       {/* Tab switcher */}
       {user && (
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '28px', background: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '12px', width: 'fit-content' }}>
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '28px', background: 'var(--bg-secondary)', padding: '4px', borderRadius: '12px', width: 'fit-content' }}>
           {(['all', 'my'] as const).map(sec => (
             <button
               key={sec}
@@ -334,7 +334,7 @@ const Hackathons: React.FC = () => {
       <AnimatePresence mode="wait">
         {loading && activeSection === 'all' ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--text-muted)' }}>
-            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid rgba(37,99,235,0.2)', borderTop: '3px solid var(--accent-primary)', margin: '0 auto 16px' }} />
+            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid rgba(163,230,53,0.2)', borderTop: '3px solid var(--accent-primary)', margin: '0 auto 16px' }} />
             Loading hackathons...
           </div>
         ) : displayList.length === 0 ? (

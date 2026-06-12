@@ -36,15 +36,14 @@ const NotificationItem: React.FC<{ n: Notification; onMarkRead: () => void }> = 
       initial={{ opacity: 0, x: 10 }}
       animate={{ opacity: 1, x: 0 }}
       style={{
-        display: 'flex',
-        gap: '12px',
-        padding: '12px 16px',
-        borderRadius: '10px',
-        background: n.isRead ? 'transparent' : 'rgba(37, 99, 235, 0.06)',
-        border: n.isRead ? '1px solid transparent' : '1px solid rgba(37,99,235,0.15)',
-        cursor: 'pointer',
+        padding: '1rem',
+        background: n.isRead ? 'transparent' : 'rgba(163, 230, 53, 0.06)',
+        border: n.isRead ? '1px solid transparent' : '1px solid rgba(163,230,53,0.15)',
+        borderBottom: '1px solid rgba(255,255,255,0.04)',
         transition: 'all 0.2s',
         position: 'relative',
+        display: 'flex',
+        gap: '12px',
       }}
       onClick={!n.isRead ? onMarkRead : undefined}
       whileHover={{ background: 'rgba(255,255,255,0.04)' }}
@@ -202,7 +201,7 @@ const NotificationDropdown: React.FC<Props> = ({ isOpen, onClose }) => {
                     transition: 'background 0.15s',
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(37,99,235,0.1)';
+                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(163,230,53,0.1)';
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLButtonElement).style.background = 'transparent';

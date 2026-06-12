@@ -100,7 +100,7 @@ const HackathonChat: React.FC<Props> = ({ hackathonId, hackathonName }) => {
             width: 32,
             height: 32,
             borderRadius: '10px',
-            background: 'rgba(37,99,235,0.15)',
+            background: 'rgba(163,230,53,0.15)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -175,7 +175,7 @@ const HackathonChat: React.FC<Props> = ({ hackathonId, hackathonName }) => {
                         : 'rgba(255,255,255,0.06)',
                       color: isOwn ? '#fff' : 'var(--text-primary)',
                       fontSize: '0.85rem',
-                      boxShadow: isOwn ? '0 2px 12px rgba(37,99,235,0.3)' : 'none',
+                      boxShadow: isOwn ? '0 2px 12px rgba(163,230,53,0.3)' : 'none',
                       wordBreak: 'break-word',
                     }}
                   >
@@ -267,7 +267,7 @@ const HackathonChat: React.FC<Props> = ({ hackathonId, hackathonName }) => {
             justifyContent: 'center',
             flexShrink: 0,
             transition: 'all 0.2s',
-            boxShadow: input.trim() ? '0 2px 12px rgba(37,99,235,0.35)' : 'none',
+            boxShadow: input.trim() ? '0 2px 12px rgba(163,230,53,0.35)' : 'none',
           }}
         >
           <Send

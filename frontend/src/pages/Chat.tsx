@@ -153,7 +153,7 @@ const Chat: React.FC = () => {
                 width: 30,
                 height: 30,
                 borderRadius: '8px',
-                background: showNewDm ? 'rgba(37,99,235,0.2)' : 'rgba(255,255,255,0.06)',
+                background: showNewDm ? 'rgba(163,230,53,0.2)' : 'rgba(255,255,255,0.06)',
                 border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
@@ -233,7 +233,7 @@ const Chat: React.FC = () => {
                 width: '100%',
                 padding: '7px 10px 7px 28px',
                 background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.07)',
+                border: 'none',
                 borderRadius: '8px',
                 color: 'var(--text-primary)',
                 fontSize: '0.78rem',
@@ -274,8 +274,8 @@ const Chat: React.FC = () => {
                     gap: 10,
                     padding: '10px 12px',
                     borderRadius: '10px',
-                    background: isActive ? 'rgba(37,99,235,0.12)' : 'transparent',
-                    border: `1px solid ${isActive ? 'rgba(37,99,235,0.25)' : 'transparent'}`,
+                    background: isActive ? 'rgba(163,230,53,0.12)' : 'transparent',
+                    border: `1px solid ${isActive ? 'rgba(163,230,53,0.25)' : 'transparent'}`,
                     cursor: 'pointer',
                     textAlign: 'left',
                     marginBottom: 4,
@@ -418,7 +418,7 @@ const Chat: React.FC = () => {
                             : 'rgba(255,255,255,0.07)',
                           color: isOwn ? '#fff' : 'var(--text-primary)',
                           fontSize: '0.875rem',
-                          boxShadow: isOwn ? '0 4px 16px rgba(37,99,235,0.3)' : 'none',
+                          boxShadow: isOwn ? '0 4px 16px rgba(163,230,53,0.3)' : 'none',
                           wordBreak: 'break-word',
                         }}
                       >
@@ -502,7 +502,7 @@ const Chat: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'all 0.2s',
-                boxShadow: input.trim() ? '0 4px 14px rgba(37,99,235,0.4)' : 'none',
+                boxShadow: input.trim() ? '0 4px 14px rgba(163,230,53,0.4)' : 'none',
               }}
             >
               <Send size={17} color={input.trim() ? '#fff' : 'var(--text-muted)'} />
@@ -528,8 +528,8 @@ const Chat: React.FC = () => {
             style={{
               width: 72,
               height: 72,
-              borderRadius: '20px',
-              background: 'rgba(37,99,235,0.08)',
+              borderRadius: '24px',
+              background: 'rgba(163,230,53,0.08)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

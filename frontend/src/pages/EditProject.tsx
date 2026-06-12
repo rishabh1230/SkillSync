@@ -146,14 +146,14 @@ const EditProject: React.FC = () => {
         style={{
           display: 'inline-flex', alignItems: 'center', gap: '7px',
           padding: '7px 16px', borderRadius: '10px',
-          border: '1px solid rgba(255,255,255,0.07)',
-          background: 'rgba(255,255,255,0.03)',
+          border: 'none',
+          background: 'var(--bg-secondary)',
           color: 'var(--text-secondary)', cursor: 'pointer',
           fontSize: '0.83rem', fontWeight: 500,
           marginBottom: '1.75rem', transition: 'all 0.2s',
         }}
         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.07)'; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-secondary)'; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-secondary)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-secondary)'; }}
       >
         <ArrowLeft size={15} /> Back to Project
       </button>
@@ -190,7 +190,7 @@ const EditProject: React.FC = () => {
       <div
         style={{
           background: 'rgba(255,255,255,0.025)',
-          border: '1px solid rgba(255,255,255,0.07)',
+          border: 'none',
           borderRadius: '24px',
           padding: '2rem',
           maxWidth: '820px',

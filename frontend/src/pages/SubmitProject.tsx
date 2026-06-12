@@ -53,7 +53,7 @@ const SubmitProject: React.FC = () => {
       <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff', marginBottom: '8px' }}>Submit Hackathon Project</h1>
       <p style={{ color: 'var(--text-secondary)', marginBottom: '30px' }}>Fill out the details below to submit your final project.</p>
 
-      <form onSubmit={handleSubmit} style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '30px' }}>
+      <form onSubmit={handleSubmit} style={{ background: 'var(--bg-secondary)', border: 'none', borderRadius: '16px', padding: '30px' }}>
         
         <label style={labelStyle}>Project Title</label>
         <input style={inputStyle} type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required placeholder="E.g., Super AI Agent" />

@@ -2,23 +2,23 @@
 
 :root {
   /* Core Colors */
-  --bg-primary: #11131b;
-  --bg-secondary: #191b23;
-  --bg-glass: rgba(25, 27, 35, 0.6);
-  --bg-glass-hover: rgba(255, 255, 255, 0.05);
+  --bg-primary: #121212;
+  --bg-secondary: #1a1a1a;
+  --bg-glass: #1f1f22;
+  --bg-glass-hover: #2a2a2f;
   
-  --text-primary: #e1e2ed;
-  --text-secondary: #c3c6d7;
-  --text-muted: #8d90a0;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
 
-  --accent-primary: #2563eb;
-  --accent-hover: #0053db;
-  --accent-glow: rgba(37, 99, 235, 0.4);
+  --accent-primary: #a3e635; /* Lime Green */
+  --accent-hover: #bef264;
+  --accent-glow: rgba(163, 230, 53, 0.2);
 
-  --accent-secondary: #f59e0b; 
+  --accent-secondary: #f97316; /* Bright Orange */
   
-  --danger: #ffb4ab;
-  --success: #10b981;
+  --danger: #ef4444;
+  --success: #a3e635;
 
   /* Text Gradients */
   --gradient-primary: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
@@ -27,15 +27,15 @@
   --border-light: rgba(255, 255, 255, 0.05);
   --border-focus: rgba(99, 102, 241, 0.5);
   
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
   --shadow-glow: 0 0 20px var(--accent-glow);
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --shadow-glass: 0 10px 40px -10px rgba(0,0,0,0.5);
 
   /* Layout */
   --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  --radius-md: 1rem;
+  --radius-lg: 24px;
   --radius-full: 9999px;
 
   /* Transitions */
@@ -52,9 +52,6 @@
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--bg-primary);
-  background-image: radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.08), transparent 25%),
-                    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
-  background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -124,8 +121,6 @@ a:hover {
 /* Premium Components */
 .glass-panel {
   background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-glass);
@@ -147,15 +142,15 @@ a:hover {
 }
 
 .btn-primary {
-  background-color: var(--accent-primary);
-  color: white;
-  box-shadow: 0 4px 14px 0 var(--accent-glow);
+  background-color: #ffffff;
+  color: #000000;
+  box-shadow: 0 4px 14px 0 rgba(255,255,255,0.1);
 }
 
 .btn-primary:hover {
-  background-color: var(--accent-hover);
+  background-color: #f1f1f1;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--accent-glow);
+  box-shadow: 0 6px 20px rgba(255,255,255,0.2);
 }
 
 .btn-primary:disabled {
@@ -165,14 +160,14 @@ a:hover {
 }
 
 .btn-secondary {
-  background-color: transparent;
+  background-color: var(--bg-glass);
   color: var(--text-primary);
   border: 1px solid var(--border-light);
 }
 
 .btn-secondary:hover {
   background-color: var(--bg-glass-hover);
-  border-color: var(--text-secondary);
+  border-color: rgba(255,255,255,0.1);
 }
 
 .input-group {
@@ -217,12 +212,12 @@ a:hover {
 }
 
 .sidebar {
-  width: 260px;
-  background-color: var(--bg-secondary);
-  border-right: 1px solid var(--border-light);
-  padding: 1.5rem;
+  width: 90px;
+  background-color: var(--bg-primary);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 0;
 }
 
 .main-content {

@@ -130,7 +130,7 @@ const CreateHackathon: React.FC = () => {
         value={String(formData[key])}
         onChange={(e) => setFormData({ ...formData, [key]: type === 'number' ? Number(e.target.value) : e.target.value })}
         required={required}
-        onFocus={(e) => { e.target.style.borderColor = 'var(--accent-primary)'; e.target.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.1)'; }}
+        onFocus={(e) => { e.target.style.borderColor = 'var(--accent-primary)'; e.target.style.boxShadow = '0 0 0 3px rgba(163,230,53,0.1)'; }}
         onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
       />
     </div>
@@ -148,7 +148,7 @@ const CreateHackathon: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
         onSubmit={handleSubmit}
-        style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '20px', padding: '36px', display: 'flex', flexDirection: 'column', gap: '0px' }}
+        style={{ background: 'var(--bg-secondary)', border: 'none', borderRadius: '24px', padding: '36px', display: 'flex', flexDirection: 'column', gap: '0px' }}
       >
         {/* ── Banner Image Upload ── */}
         <div style={fieldWrap}>
@@ -159,7 +159,7 @@ const CreateHackathon: React.FC = () => {
               position: 'relative',
               width: '100%',
               paddingTop: '35%',
-              background: bannerPreview ? `url(${bannerPreview}) center/cover` : 'rgba(255,255,255,0.03)',
+              background: bannerPreview ? `url(${bannerPreview}) center/cover` : 'var(--bg-secondary)',
               border: `2px dashed ${bannerPreview ? 'transparent' : 'rgba(255,255,255,0.15)'}`,
               borderRadius: '12px',
               cursor: 'pointer',
@@ -213,9 +213,9 @@ const CreateHackathon: React.FC = () => {
                 onClick={() => tags.includes(t) ? removeTag(t) : addTag(t)}
                 style={{
                   padding: '5px 12px',
-                  borderRadius: '20px',
+                  borderRadius: '24px',
                   border: `1px solid ${tags.includes(t) ? 'var(--accent-primary)' : 'rgba(255,255,255,0.12)'}`,
-                  background: tags.includes(t) ? 'rgba(37,99,235,0.15)' : 'rgba(255,255,255,0.03)',
+                  background: tags.includes(t) ? 'rgba(163,230,53,0.15)' : 'var(--bg-secondary)',
                   color: tags.includes(t) ? 'var(--accent-primary)' : 'var(--text-secondary)',
                   fontSize: '0.8rem',
                   cursor: 'pointer',
@@ -242,7 +242,7 @@ const CreateHackathon: React.FC = () => {
           {tags.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
               {tags.map(t => (
-                <span key={t} style={{ padding: '4px 12px', background: 'rgba(37,99,235,0.12)', borderRadius: '20px', color: 'var(--accent-primary)', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span key={t} style={{ padding: '4px 12px', background: 'rgba(163,230,53,0.12)', borderRadius: '24px', color: 'var(--accent-primary)', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                   {t}
                   <X size={12} style={{ cursor: 'pointer', opacity: 0.7 }} onClick={() => removeTag(t)} />
                 </span>
@@ -320,7 +320,7 @@ const CreateHackathon: React.FC = () => {
           style={{
             width: '100%',
             padding: '16px',
-            background: loading ? 'rgba(37,99,235,0.5)' : 'linear-gradient(135deg, #2563eb, #7c3aed)',
+            background: loading ? 'rgba(163,230,53,0.5)' : 'linear-gradient(135deg, #2563eb, #7c3aed)',
             color: '#fff',
             borderRadius: '12px',
             border: 'none',
@@ -331,7 +331,7 @@ const CreateHackathon: React.FC = () => {
             justifyContent: 'center',
             alignItems: 'center',
             gap: '10px',
-            boxShadow: '0 4px 20px rgba(37,99,235,0.3)',
+            boxShadow: '0 4px 20px rgba(163,230,53,0.3)',
           }}
         >
           {uploading ? 'Uploading banner...' : loading ? 'Creating...' : <><span>Launch Hackathon</span><ArrowRight size={18} /></>}

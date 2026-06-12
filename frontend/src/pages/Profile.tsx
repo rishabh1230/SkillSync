@@ -37,14 +37,14 @@ const Profile: React.FC = () => {
 
   const isOwnProfile = !userId || userId === (authUser as any)?.id || userId === (authUser as any)?.sub;
 
-  const [loading, setLoading]   = useState(true);
-  const [editing, setEditing]   = useState(false);
-  const [pwMsg, setPwMsg]       = useState('');
-  const [pwErr, setPwErr]       = useState('');
-  const [profMsg, setProfMsg]   = useState('');
-  const [profErr, setProfErr]   = useState('');
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [pwMsg, setPwMsg] = useState('');
+  const [pwErr, setPwErr] = useState('');
+  const [profMsg, setProfMsg] = useState('');
+  const [profErr, setProfErr] = useState('');
   const [savingProf, setSavingProf] = useState(false);
-  const [savingPw, setSavingPw]   = useState(false);
+  const [savingPw, setSavingPw] = useState(false);
 
   /* profile data from user-service */
   const [profile, setProfile] = useState({
@@ -59,8 +59,8 @@ const Profile: React.FC = () => {
   });
 
   /* editable copy */
-  const [editData, setEditData] = useState({ 
-    username: '', 
+  const [editData, setEditData] = useState({
+    username: '',
     phone_no: '',
     githubUrl: '',
     leetcodeUrl: '',
@@ -68,7 +68,7 @@ const Profile: React.FC = () => {
     skills: [] as string[],
     education: [] as EducationEntry[],
   });
-  
+
   const [skillInput, setSkillInput] = useState('');
 
   const [passwords, setPasswords] = useState({
@@ -87,7 +87,7 @@ const Profile: React.FC = () => {
         const d = res.data;
         const mappedData = {
           username: d.username ?? '',
-          email:    d.email    ?? (isOwnProfile ? (authUser as any)?.email : '') ?? '',
+          email: d.email ?? (isOwnProfile ? (authUser as any)?.email : '') ?? '',
           phone_no: d.phone_no ?? '',
           githubUrl: d.githubUrl ?? '',
           leetcodeUrl: d.leetcodeUrl ?? '',
@@ -148,7 +148,7 @@ const Profile: React.FC = () => {
       await api.post(
         '/auth/update-password',
         {
-          email:        profile.email,
+          email: profile.email,
           old_password: passwords.old_password,
           new_password: passwords.new_password,
         },
@@ -249,7 +249,7 @@ const Profile: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* ── Personal Info Card ── */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '1.75rem' }}>
+          <div style={{ background: 'var(--bg-secondary)', border: 'none', borderRadius: '24px', padding: '1.75rem' }}>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -330,7 +330,7 @@ const Profile: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                
+
                 {/* Read-only skills */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.73rem', fontWeight: 500, color: 'var(--text-muted)', marginBottom: '8px' }}>Skills</label>
@@ -353,14 +353,14 @@ const Profile: React.FC = () => {
                   {profile.education.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {profile.education.map((edu, index) => (
-                        <div key={index} style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '12px' }}>
-                           <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(139,92,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div key={index} style={{ padding: '12px', background: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '12px' }}>
+                          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(139,92,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <GraduationCap size={16} color="#a78bfa" />
-                           </div>
-                           <div>
-                             <p style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>{edu.degree || 'Degree unspecified'}</p>
-                             <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '2px' }}>{edu.institution || 'Institution unspecified'} {edu.year ? `• ${edu.year}` : ''}</p>
-                           </div>
+                          </div>
+                          <div>
+                            <p style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>{edu.degree || 'Degree unspecified'}</p>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '2px' }}>{edu.institution || 'Institution unspecified'} {edu.year ? `• ${edu.year}` : ''}</p>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -418,7 +418,7 @@ const Profile: React.FC = () => {
                 </div>
 
                 <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)', margin: '0' }} />
-                
+
                 {/* Links */}
                 <h3 style={{ fontSize: '0.85rem', color: '#fff', margin: '0 0 -10px 0' }}>Social & Links</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
@@ -455,7 +455,7 @@ const Profile: React.FC = () => {
                       />
                     </div>
                   </div>
-                  
+
                   {/* Portfolio */}
                   <div>
                     <label style={{ display: 'block', fontSize: '0.73rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '5px' }}>Portfolio URL</label>
@@ -492,20 +492,20 @@ const Profile: React.FC = () => {
                       onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
                     />
                   </div>
-                  
+
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     <AnimatePresence>
                       {editData.skills.map((skill, index) => (
-                        <motion.span 
-                          key={index} 
+                        <motion.span
+                          key={index}
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.8 }}
-                          style={{ 
+                          style={{
                             display: 'inline-flex', alignItems: 'center', gap: '6px',
-                            padding: '4px 10px', background: 'rgba(6,182,212,0.1)', 
-                            color: 'var(--accent-primary)', borderRadius: '6px', 
-                            fontSize: '0.8rem', border: '1px solid rgba(6,182,212,0.2)' 
+                            padding: '4px 10px', background: 'rgba(6,182,212,0.1)',
+                            color: 'var(--accent-primary)', borderRadius: '6px',
+                            fontSize: '0.8rem', border: '1px solid rgba(6,182,212,0.2)'
                           }}
                         >
                           {skill}
@@ -537,11 +537,11 @@ const Profile: React.FC = () => {
                       <Plus size={12} /> Add Education
                     </button>
                   </div>
-                  
+
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <AnimatePresence>
                       {editData.education.map((edu, index) => (
-                        <motion.div 
+                        <motion.div
                           key={index}
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
@@ -554,27 +554,27 @@ const Profile: React.FC = () => {
                             </button>
                           </div>
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
-                            <input 
-                              type="text" 
-                              placeholder="Degree (e.g. B.Tech in Computer Science)" 
-                              value={edu.degree} 
+                            <input
+                              type="text"
+                              placeholder="Degree (e.g. B.Tech in Computer Science)"
+                              value={edu.degree}
                               onChange={(e) => updateEducation(index, 'degree', e.target.value)}
-                              style={{ ...inputStyle(false), padding: '0.6rem 1rem' }} 
+                              style={{ ...inputStyle(false), padding: '0.6rem 1rem' }}
                             />
                             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
-                              <input 
-                                type="text" 
-                                placeholder="Institution" 
-                                value={edu.institution} 
+                              <input
+                                type="text"
+                                placeholder="Institution"
+                                value={edu.institution}
                                 onChange={(e) => updateEducation(index, 'institution', e.target.value)}
-                                style={{ ...inputStyle(false), padding: '0.6rem 1rem' }} 
+                                style={{ ...inputStyle(false), padding: '0.6rem 1rem' }}
                               />
-                              <input 
-                                type="text" 
-                                placeholder="Year (e.g. 2024)" 
-                                value={edu.year} 
+                              <input
+                                type="text"
+                                placeholder="Year (e.g. 2024)"
+                                value={edu.year}
                                 onChange={(e) => updateEducation(index, 'year', e.target.value)}
-                                style={{ ...inputStyle(false), padding: '0.6rem 1rem' }} 
+                                style={{ ...inputStyle(false), padding: '0.6rem 1rem' }}
                               />
                             </div>
                           </div>
@@ -631,7 +631,7 @@ const Profile: React.FC = () => {
 
           {/* ── Security Card ── */}
           {isOwnProfile && (
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '1.75rem' }}>
+            <div style={{ background: 'var(--bg-secondary)', border: 'none', borderRadius: '24px', padding: '1.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '9px', background: 'rgba(139,92,246,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Shield size={16} color="#a78bfa" />
@@ -642,7 +642,7 @@ const Profile: React.FC = () => {
               <form onSubmit={handleUpdatePassword} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {[
                   { label: 'Current Password', key: 'old_password' as const, placeholder: '••••••••' },
-                  { label: 'New Password',     key: 'new_password' as const, placeholder: 'Min. 8 characters' },
+                  { label: 'New Password', key: 'new_password' as const, placeholder: 'Min. 8 characters' },
                 ].map(({ label, key, placeholder }) => (
                   <div key={key}>
                     <label style={{ display: 'block', fontSize: '0.73rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '5px' }}>{label}</label>
@@ -702,7 +702,7 @@ const Profile: React.FC = () => {
 
         {/* ── Right sidebar ── */}
         <div style={{ position: 'sticky', top: '24px' }}>
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '1.75rem', textAlign: 'center' }}>
+          <div style={{ background: 'var(--bg-secondary)', border: 'none', borderRadius: '24px', padding: '1.75rem', textAlign: 'center' }}>
             {/* Avatar */}
             <div
               style={{
@@ -762,7 +762,7 @@ const Profile: React.FC = () => {
                 <MessageSquare size={16} /> Message
               </button>
             )}
-            
+
             {(profile.githubUrl || profile.leetcodeUrl || profile.portfolioUrl) && (
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem', marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '14px' }}>
                 {profile.githubUrl && (

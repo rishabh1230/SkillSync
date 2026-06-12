@@ -624,7 +624,7 @@ const ProjectDetails: React.FC = () => {
           {/* Description card */}
           <div
             className="glass-panel"
-            style={{ padding: '2rem', borderRadius: '20px' }}
+            style={{ padding: '2rem', borderRadius: '24px' }}
           >
             <h2
               style={{
@@ -671,7 +671,7 @@ const ProjectDetails: React.FC = () => {
           {/* Project Info card */}
           <div
             className="glass-panel"
-            style={{ padding: '1.5rem', borderRadius: '20px' }}
+            style={{ padding: '1.5rem', borderRadius: '24px' }}
           >
             <h3
               style={{
@@ -748,7 +748,7 @@ const ProjectDetails: React.FC = () => {
           {isOwner && (
             <div
               className="glass-panel"
-              style={{ padding: '1.5rem', borderRadius: '20px' }}
+              style={{ padding: '1.5rem', borderRadius: '24px' }}
             >
               <h3
                 style={{
