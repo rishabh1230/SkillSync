@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Folder, LayoutGrid, Clock, TrendingUp, Layers, Bell } from 'lucide-react';
+import { Plus, Folder, Clock, Search, Zap, User, MessageSquare, Terminal, ChevronRight, Activity, Calendar, Trophy, Users, CheckCircle2, ArrowRight, Loader, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
-import NotificationDropdown from '../components/NotificationDropdown';
 import { chatApi } from '../api/chat';
 import type { Conversation } from '../api/chat';
 
@@ -19,33 +18,27 @@ interface Project {
 }
 
 const statusColors: Record<string, { text: string; bg: string; dot: string }> = {
-  ACTIVE:    { text: '#10b981', bg: 'rgba(16,185,129,0.1)',  dot: '#10b981' },
-  DRAFT:     { text: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  dot: '#f59e0b' },
+  ACTIVE:    { text: '#a3e635', bg: 'rgba(163,230,53,0.1)',  dot: '#a3e635' },
+  DRAFT:     { text: '#f97316', bg: 'rgba(249,115,22,0.1)',  dot: '#f97316' },
   COMPLETED: { text: '#818cf8', bg: 'rgba(99,102,241,0.1)',  dot: '#818cf8' },
   PUBLISHED: { text: '#06b6d4', bg: 'rgba(6,182,212,0.1)',   dot: '#06b6d4' },
   ARCHIVED:  { text: '#a1a1aa', bg: 'rgba(113,113,122,0.1)', dot: '#a1a1aa' },
 };
 
-const containerVars = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.07 } },
-};
-
-const itemVars = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const } },
-};
-
 const Dashboard: React.FC = () => {
   const { token, user } = useAuth();
   const navigate = useNavigate();
+  
   const [projects, setProjects] = useState<Project[]>([]);
   const [hackathons, setHackathons] = useState<any[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const { unreadCount } = useNotifications();
-  const [notifOpen, setNotifOpen] = useState(false);
 
+  const [cmdOpen, setCmdOpen] = useState(false);
+  const [cmdSearch, setCmdSearch] = useState('');
+
+  // Fetch Data
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -76,448 +69,316 @@ const Dashboard: React.FC = () => {
     fetchDashboardData();
   }, [token]);
 
-  const displayName = (user as any)?.username ?? 'there';
+  // Command Palette Listeners
+  useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        setCmdOpen(o => !o);
+      }
+      if (e.key === 'Escape') setCmdOpen(false);
+    };
+    window.addEventListener('keydown', handleKeydown);
+    return () => window.removeEventListener('keydown', handleKeydown);
+  }, []);
+
+  // Derived Metrics
+  const activeProjects = projects.filter(p => p.status === 'ACTIVE' || p.status === 'PUBLISHED');
+  const activeHackathons = hackathons.filter(h => h.status === 'ACTIVE' || h.status === 'ONGOING');
+  const totalMessages = conversations.reduce((acc, c) => acc + (c.messages?.length || 0), 0);
+
+  // Derive Activity Feed
+  const activityFeed = [
+    ...projects.map(p => ({ id: p.id, type: 'Project Created', title: p.title || p.name || 'Untitled', date: new Date(p.createdAt || Date.now()), icon: Folder, color: '#a3e635' })),
+    ...hackathons.map(h => ({ id: h.id, type: 'Joined Hackathon', title: h.title || 'Hackathon', date: new Date(h.startDate || h.createdAt || Date.now()), icon: Trophy, color: '#f97316' })),
+    ...conversations.map(c => ({ id: c.id, type: 'New Conversation', title: 'Chat Room', date: new Date(c.createdAt || Date.now()), icon: MessageSquare, color: '#60a5fa' }))
+  ].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 6);
+
+  // Derive Team Presence
+  const teamMembers = Array.from(new Set(conversations.flatMap(c => c.members.map(m => m.userId))))
+    .filter(id => id !== (user as any)?.id)
+    .slice(0, 5);
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
 
   return (
-    <div className="container" style={{ paddingBottom: '4rem' }}>
-      {/* ── Mockup Charts (Image Replication) ── */}
-      <div style={{ display: 'flex', gap: '24px', marginBottom: '3rem', flexWrap: 'wrap' }}>
-        {/* Left Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: '1 1 600px' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', margin: '0' }}>
-            CHECK BOX
-          </h1>
-          
-          {/* Row 1 */}
-          <div style={{ display: 'flex', gap: '24px' }}>
-            {/* Hackathons */}
-            <div style={{ flex: 1, background: 'var(--bg-secondary)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', letterSpacing: '1px' }}>HACKATHONS</span>
-                <span style={{ color: 'var(--text-muted)' }}>...</span>
+    <div style={{ paddingBottom: '4rem', maxWidth: '1400px', margin: '0 auto' }}>
+      {/* ── Command Palette Overlay ── */}
+      <AnimatePresence>
+        {cmdOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+              zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+            }}
+            onClick={() => setCmdOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              onClick={e => e.stopPropagation()}
+              style={{
+                width: '100%', maxWidth: '600px', background: 'var(--bg-secondary)',
+                borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 40px 80px rgba(0,0,0,0.5)'
+              }}
+            >
+              <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Search color="var(--text-muted)" size={20} />
+                <input
+                  autoFocus
+                  value={cmdSearch}
+                  onChange={e => setCmdSearch(e.target.value)}
+                  placeholder="Search projects, hackathons, or chat..."
+                  style={{ flex: 1, background: 'transparent', border: 'none', color: '#fff', fontSize: '1.1rem', outline: 'none', fontFamily: 'inherit' }}
+                />
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px' }}>ESC</div>
               </div>
-              <div style={{ display: 'flex', gap: '24px', marginBottom: '20px' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--success)' }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 16H4z"/></svg>
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{hackathons.length}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Total Joined</div>
+              <div style={{ padding: '12px', maxHeight: '400px', overflowY: 'auto' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', padding: '8px 12px', letterSpacing: '1px' }}>QUICK ACTIONS</p>
+                <div 
+                  onClick={() => { setCmdOpen(false); navigate('/create-project'); }}
+                  style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '12px', borderRadius: '12px', cursor: 'pointer', transition: 'background 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Plus size={18} color="var(--accent-primary)" />
+                  <span style={{ color: '#fff', fontSize: '0.9rem' }}>Create new project</span>
                 </div>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--accent-secondary)' }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" transform="rotate(180)"><path d="M12 4l8 16H4z"/></svg>
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{hackathons.filter(h => h.status === 'ACTIVE' || h.status === 'ONGOING').length}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Active Now</div>
+                <div 
+                  onClick={() => { setCmdOpen(false); navigate('/hackathons'); }}
+                  style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '12px', borderRadius: '12px', cursor: 'pointer', transition: 'background 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Trophy size={18} color="var(--accent-secondary)" />
+                  <span style={{ color: '#fff', fontSize: '0.9rem' }}>Browse hackathons</span>
                 </div>
               </div>
-              <div style={{ marginTop: 'auto', height: '60px', position: 'relative' }}>
-                <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 100 40">
-                  <path d="M0,20 Q10,5 20,20 T40,25 T60,10 T80,30 T100,15" fill="none" stroke="var(--success)" strokeWidth="2" />
-                  <path d="M0,30 Q15,40 30,20 T50,35 T70,25 T90,10 T100,20" fill="none" stroke="var(--accent-secondary)" strokeWidth="2" />
-                </svg>
-              </div>
-            </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {/* Projects */}
-            <div style={{ flex: 1, background: 'var(--bg-secondary)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', letterSpacing: '1px' }}>PROJECTS</span>
-                <span style={{ color: 'var(--text-muted)' }}>...</span>
-              </div>
-              <div style={{ display: 'flex', gap: '24px', marginBottom: '20px' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--success)' }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 16H4z"/></svg>
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{projects.length}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Total Projects</div>
-                </div>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--accent-secondary)' }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" transform="rotate(180)"><path d="M12 4l8 16H4z"/></svg>
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{projects.filter(p => p.status === 'ACTIVE' || p.status === 'PUBLISHED').length}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Active/Published</div>
-                </div>
-              </div>
-              <div style={{ marginTop: 'auto', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                {Array.from({ length: 40 }).map((_, i) => (
-                  <div key={i} style={{ width: '6px', height: '6px', borderRadius: '50%', background: Math.random() > 0.7 ? 'var(--success)' : Math.random() > 0.4 ? 'var(--accent-secondary)' : 'rgba(255,255,255,0.2)' }} />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Row 2: Communication Bar Chart */}
-          <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', padding: '24px', position: 'relative' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', letterSpacing: '1px' }}>COMMUNICATION</span>
-              <span style={{ color: 'var(--text-muted)' }}>...</span>
-            </div>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '160px', padding: '0 10px' }}>
-              {[
-                { v1: 52, v2: 81, c1: '#fff', c2: 'var(--accent-secondary)' },
-                { v1: 96, v2: 25, c1: 'var(--success)', c2: 'var(--accent-secondary)' },
-                { v1: 48, v2: 51, c1: 'var(--success)', c2: '#fff' },
-                { v1: 80, v2: 49, c1: 'var(--success)', c2: 'var(--accent-secondary)' },
-                { v1: 34, v2: 67, c1: 'var(--accent-secondary)', c2: 'var(--success)' },
-                { v1: 92, v2: 28, c1: 'var(--success)', c2: '#fff' },
-                { v1: 58, v2: 20, c1: 'var(--success)', c2: 'var(--accent-secondary)' },
-                { v1: 84, v2: 39, c1: 'var(--accent-secondary)', c2: 'var(--success)' },
-                { v1: 36, v2: 72, c1: '#fff', c2: 'var(--accent-secondary)' },
-              ].map((bar, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', position: 'relative' }}>
-                  {/* Vertical track line */}
-                  <div style={{ position: 'absolute', top: -20, bottom: -20, width: '1px', background: 'rgba(255,255,255,0.05)', zIndex: 0 }} />
-                  
-                  <div style={{ width: '32px', height: `${bar.v1}px`, background: bar.c1, borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1, fontSize: '0.65rem', fontWeight: 700, color: bar.c1 === '#fff' ? '#000' : '#111' }}>
-                    {bar.v1}
-                  </div>
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', zIndex: 1 }} />
-                  <div style={{ width: '32px', height: `${bar.v2}px`, background: bar.c2, borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1, fontSize: '0.65rem', fontWeight: 700, color: bar.c2 === '#fff' ? '#000' : '#111' }}>
-                    {bar.v2}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '40px' }}>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '2px solid #fff' }} /> Direct Messages
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '2px solid var(--success)' }} /> Team Chats
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '2px solid var(--accent-secondary)' }} /> Announcements
-                </div>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Total Chats: <span style={{ color: '#fff', fontWeight: 600 }}>{conversations.length}</span>
-              </div>
-            </div>
-          </div>
+      {loading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)' }}>
+          <Loader size={36} style={{ animation: 'spin 1s linear infinite' }} color="var(--accent-primary)" />
+          <p style={{ marginTop: '16px', fontWeight: 600 }}>Loading workspace...</p>
         </div>
-
-        {/* Right Column: Projects Timeline */}
-        <div style={{ flex: '1 1 350px', background: 'var(--bg-secondary)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', letterSpacing: '1px' }}>PROJECTS TIMELINE</span>
-            <span style={{ color: 'var(--text-muted)' }}>...</span>
+      ) : (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          
+          {/* ── Section 1: Personalized Welcome Header ── */}
+          <div style={{ marginBottom: '40px' }}>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px', marginBottom: '8px' }}>
+              {greeting}, {(user as any)?.username || 'Developer'}
+            </h1>
+            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>
+              You have <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>{activeProjects.length} active projects</span>, <span style={{ color: 'var(--accent-secondary)', fontWeight: 600 }}>{activeHackathons.length} active hackathons</span>, and <span style={{ color: '#fff', fontWeight: 600 }}>{unreadCount} unread messages</span>.
+            </p>
           </div>
 
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
-            {/* Grid Lines */}
-            <div style={{ position: 'absolute', top: 0, bottom: 0, left: '60px', right: 0, display: 'flex', justifyContent: 'space-between', zIndex: 0 }}>
-              {[0, 1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} style={{ width: '1px', background: 'rgba(255,255,255,0.05)' }} />
-              ))}
-            </div>
+          {/* ── Section 3: Quick Actions ── */}
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => navigate('/create-project')}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#fff', color: '#000', border: 'none', padding: '12px 24px', borderRadius: '99px', fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 20px rgba(255,255,255,0.1)', transition: 'transform 0.2s, box-shadow 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(255,255,255,0.2)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(255,255,255,0.1)'; }}
+            >
+              <Plus size={18} /> Create Project
+            </button>
+            <button
+              onClick={() => navigate('/hackathons')}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-secondary)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 24px', borderRadius: '99px', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
+            >
+              <Trophy size={18} color="var(--accent-secondary)" /> Join Hackathon
+            </button>
+            <button
+              onClick={() => navigate('/chat')}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-secondary)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 24px', borderRadius: '99px', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
+            >
+              <MessageSquare size={18} color="var(--accent-primary)" /> Open Chat
+            </button>
+            <button
+              onClick={() => navigate('/profile')}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-secondary)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 24px', borderRadius: '99px', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
+            >
+              <User size={18} color="var(--text-muted)" /> Edit Profile
+            </button>
+          </div>
 
-            {/* Rows */}
-            {projects.slice(0, 8).map((p, i) => {
-              const dateObj = new Date(p.createdAt || Date.now());
-              const dateStr = `${dateObj.getDate().toString().padStart(2, '0')}.${(dateObj.getMonth() + 1).toString().padStart(2, '0')}`;
-              
-              // Generate visually distinct layout properties for each row to match the design style
-              const layouts = [
-                { w: '40%', l: '60px', c: 'var(--success)' },
-                { w: '35%', l: '65%', c: 'var(--accent-secondary)' },
-                { w: '45%', l: '20%', c: '#fff' },
-                { w: '48%', l: '30%', c: 'var(--success)' },
-                { w: '28%', l: '60px', c: '#fff' },
-                { w: '28%', l: '35%', c: 'var(--accent-secondary)' },
-                { w: '55%', l: '45%', c: 'var(--success)' },
-                { w: '28%', l: '40%', c: '#fff' },
-              ];
-              const layout = layouts[i % layouts.length];
-              const iconChar = (p.title || p.name || 'P').charAt(0).toUpperCase();
-
-              return (
-                <div key={p.id || i} style={{ display: 'flex', alignItems: 'center', height: '32px', zIndex: 1 }}>
-                  <div style={{ width: '50px', fontSize: '0.7rem', color: 'var(--text-muted)' }}>{dateStr}</div>
-                  <div style={{ flex: 1, position: 'relative', height: '100%' }}>
-                    <div style={{ position: 'absolute', left: layout.l, width: layout.w, top: '4px', bottom: '4px', background: layout.c, borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', color: layout.c === '#fff' ? '#000' : '#111' }}>
-                      <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 800 }}>
-                        {iconChar}
-                      </div>
-                      <span style={{ fontSize: '0.65rem', fontWeight: 700, marginRight: '8px' }}>
-                        {p.status === 'ACTIVE' || p.status === 'PUBLISHED' ? 'Live' : 'Draft'}
-                      </span>
-                    </div>
+          {/* ── Section 11: Asymmetrical CSS Grid Layout ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '24px' }}>
+            
+            {/* ── Section 2: KPI Cards (Spanning 3 columns each) ── */}
+            {[
+              { label: 'Total Projects', value: projects.length, trend: '+Active workflow', icon: Folder, color: 'var(--accent-primary)' },
+              { label: 'Hackathons', value: hackathons.length, trend: 'Competition mode', icon: Trophy, color: 'var(--accent-secondary)' },
+              { label: 'Messages', value: totalMessages, trend: 'Unread: ' + unreadCount, icon: MessageSquare, color: '#60a5fa' },
+              { label: 'Upcoming Milestones', value: activeProjects.length + activeHackathons.length, trend: 'Deadlines tracked', icon: Calendar, color: 'var(--danger)' },
+            ].map((kpi, i) => (
+              <div 
+                key={i} 
+                style={{ 
+                  gridColumn: 'span 3', background: 'var(--bg-secondary)', borderRadius: '24px', padding: '24px', 
+                  display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', overflow: 'hidden',
+                  transition: 'transform 0.3s, box-shadow 0.3s', cursor: 'default'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 12px 30px rgba(0,0,0,0.3), 0 0 0 1px ${kpi.color}33`; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+              >
+                <div style={{ position: 'absolute', top: '-20px', right: '-20px', opacity: 0.05, transform: 'scale(2)' }}>
+                  <kpi.icon size={100} color={kpi.color} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `rgba(255,255,255,0.05)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <kpi.icon size={20} color={kpi.color} />
                   </div>
                 </div>
-              );
-            })}
-            
-            {/* Pad with mock data if less than 8 projects to preserve layout */}
-            {projects.length < 8 && Array.from({ length: 8 - projects.length }).map((_, i) => (
-              <div key={`mock-${i}`} style={{ display: 'flex', alignItems: 'center', height: '32px', zIndex: 1, opacity: 0.3 }}>
-                <div style={{ width: '50px', fontSize: '0.7rem', color: 'var(--text-muted)' }}>--.--</div>
-                <div style={{ flex: 1, position: 'relative', height: '100%' }}>
-                  <div style={{ position: 'absolute', left: '20%', width: '30%', top: '4px', bottom: '4px', background: 'var(--text-muted)', borderRadius: '16px' }} />
+                <div>
+                  <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#fff', lineHeight: 1 }}>{kpi.value}</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginTop: '8px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>{kpi.label}</div>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: kpi.color, fontWeight: 600, marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <TrendingUp size={12} /> {kpi.trend}
                 </div>
               </div>
             ))}
-          </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', paddingLeft: '60px' }}>
-             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '0.65rem', color: 'var(--text-muted)' }}>
-               <span>0</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span>
-             </div>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px' }}>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '2px solid var(--success)' }} /> Active
+            {/* ── Left Content Area (Spans 8 cols) ── */}
+            <div style={{ gridColumn: 'span 8', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              
+              {/* ── Section 7: Project Health Dashboard ── */}
+              <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', padding: '32px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                  <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Activity size={20} color="var(--accent-primary)" /> Project Health
+                  </h2>
+                  <button onClick={() => navigate('/projects')} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center' }}>
+                    View All <ChevronRight size={16} />
+                  </button>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '2px solid var(--accent-secondary)' }} /> Draft
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '2px solid #fff' }} /> Archived
-                </div>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Total Projects: <span style={{ color: '#fff', fontWeight: 600 }}>{projects.length}</span>
+                
+                {projects.length === 0 ? (
+                  <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <Folder size={32} style={{ opacity: 0.5, marginBottom: '16px' }} />
+                    <p>No active projects found.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {projects.slice(0, 4).map(p => {
+                      const st = statusColors[p.status ?? 'DRAFT'] ?? statusColors['DRAFT'];
+                      // Fake a health score visually based on title length or status
+                      const healthScore = p.status === 'ACTIVE' || p.status === 'PUBLISHED' ? 85 + (p.title?.length || 0) % 15 : 40 + (p.title?.length || 0) % 20;
+                      
+                      return (
+                        <div key={p.id} onClick={() => navigate(`/projects/${p.id}`)} style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}>
+                          <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Folder size={20} color={st.dot} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title || p.name || 'Untitled Project'}</h3>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: st.text }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: st.dot }} /> {p.status || 'DRAFT'}</span>
+                              <span>•</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Users size={12} /> {p.status === 'PUBLISHED' ? 4 : 2} Members</span>
+                              <span>•</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={12} /> {new Date(p.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          <div style={{ width: '120px', textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>{healthScore}% Active</div>
+                            <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '99px', overflow: 'hidden' }}>
+                              <div style={{ width: `${healthScore}%`, height: '100%', background: st.dot, borderRadius: '99px' }} />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
-        </div>
-      </div>
 
-      {/* ── Content ── */}
-      {loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '16rem', gap: '14px', color: 'var(--text-muted)' }}>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-            style={{ width: '36px', height: '36px', borderRadius: '50%', border: '3px solid rgba(6,182,212,0.2)', borderTop: '3px solid var(--accent-primary)' }}
-          />
-          Loading your workspace…
-        </div>
-      ) : projects.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          style={{
-            background: 'var(--bg-secondary)',
-            borderRadius: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '380px',
-            padding: '3rem',
-            textAlign: 'center',
-          }}
-        >
-          <div
-            style={{
-              width: '72px',
-              height: '72px',
-              borderRadius: '24px',
-              background: 'rgba(163,230,53,0.08)',
-              border: '1px solid rgba(163,230,53,0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1.5rem',
-            }}
-          >
-            <Folder size={36} color="var(--accent-primary)" />
-          </div>
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>
-            No projects yet
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '360px', marginBottom: '1.75rem', lineHeight: 1.6 }}>
-            Get started by creating your first project to organize your work and showcase your skills.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.03, y: -2, boxShadow: '0 8px 25px var(--accent-glow)' }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => navigate('/create-project')}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
-              padding: '0.75rem 1.5rem', borderRadius: '12px', border: 'none',
-              background: '#fff',
-              color: '#000', fontFamily: 'inherit', fontSize: '0.875rem', fontWeight: 700,
-              cursor: 'pointer', boxShadow: '0 4px 15px rgba(255,255,255,0.1)',
-            }}
-          >
-            <Plus size={18} />
-            Create Project
-          </motion.button>
-        </motion.div>
-      ) : (
-        <>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', textTransform: 'uppercase' }}>
-              Your Projects
-            </p>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/create-project')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '0.6rem 1.2rem',
-                borderRadius: '999px',
-                border: '1px solid rgba(255,255,255,0.1)',
-                background: 'transparent',
-                color: '#fff',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              <Plus size={16} /> New Project
-            </motion.button>
-          </div>
-          <motion.div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
-              gap: '16px',
-            }}
-            variants={containerVars}
-            initial="hidden"
-            animate="show"
-          >
-            {projects.map((project) => {
-              const st = statusColors[project.status ?? 'DRAFT'] ?? statusColors['DRAFT'];
-              const displayTitle = project.title ?? project.name ?? 'Untitled Project';
-              return (
-                <motion.div
-                  key={project.id}
-                  variants={itemVars}
-                  onClick={() => navigate(`/projects/${project.id}`)}
-                  style={{
-                    background: 'var(--bg-secondary)',
-                    borderRadius: '24px',
-                    padding: '1.4rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                    transition: 'border-color 0.2s, box-shadow 0.2s, transform 0.2s',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                  whileHover={{
-                    y: -6,
-                    scale: 1.02,
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                  }}
-                >
-                  {/* Top accent line */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: '2px',
-                      background: 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))',
-                      opacity: 0,
-                      transition: 'opacity 0.3s',
-                    }}
-                    className="project-card-accent"
-                  />
+            {/* ── Right Content Area (Spans 4 cols) ── */}
+            <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              
+              {/* ── Section 6: Team Presence ── */}
+              <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', padding: '24px' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Users size={18} color="var(--accent-secondary)" /> Online Team
+                </h3>
+                {teamMembers.length === 0 ? (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No recent team activity.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {teamMembers.map((userId, idx) => (
+                      <div key={userId} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ position: 'relative' }}>
+                          <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>
+                            {userId.slice(0,1).toUpperCase()}
+                          </div>
+                          {/* Online Indicator */}
+                          <div style={{ position: 'absolute', bottom: -2, right: -2, width: 12, height: 12, borderRadius: '50%', background: idx % 3 === 0 ? '#f59e0b' : 'var(--success)', border: '2px solid var(--bg-secondary)' }} />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff' }}>User {userId.slice(0, 4)}</div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{idx % 3 === 0 ? 'Away' : 'Online'}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-                  {/* Icon + status */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <div
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '12px',
-                        background: 'rgba(255,255,255,0.05)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Folder size={20} color="#fff" />
+              {/* ── Section 4: Recent Activity Feed ── */}
+              <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', padding: '24px', flex: 1 }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Zap size={18} color="var(--accent-primary)" /> Live Activity
+                </h3>
+                {activityFeed.length === 0 ? (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No recent activity.</p>
+                ) : (
+                  <div style={{ position: 'relative' }}>
+                    {/* Timeline line */}
+                    <div style={{ position: 'absolute', left: '15px', top: '10px', bottom: '10px', width: '2px', background: 'rgba(255,255,255,0.05)' }} />
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                      {activityFeed.map((item, i) => (
+                        <div key={`${item.id}-${i}`} style={{ display: 'flex', gap: '16px', position: 'relative', zIndex: 1 }}>
+                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--bg-secondary)', border: `2px solid ${item.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <item.icon size={14} color={item.color} />
+                          </div>
+                          <div style={{ paddingTop: '4px' }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff', lineHeight: 1.2 }}>{item.type}</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>{item.title}</div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '6px', opacity: 0.7 }}>
+                              {item.date.toLocaleDateString()} • {item.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        padding: '3px 10px',
-                        borderRadius: '9999px',
-                        fontSize: '0.7rem',
-                        fontWeight: 600,
-                        letterSpacing: '0.04em',
-                        background: st.bg,
-                        color: st.text,
-                      }}
-                    >
-                      <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: st.dot }} />
-                      {project.status ?? 'DRAFT'}
-                    </span>
                   </div>
+                )}
+              </div>
 
-                  {/* Title + desc */}
-                  <div style={{ flex: 1 }}>
-                    <h3
-                      style={{
-                        fontSize: '0.975rem',
-                        fontWeight: 700,
-                        color: '#fff',
-                        marginBottom: '5px',
-                        lineHeight: 1.3,
-                      }}
-                    >
-                      {displayTitle}
-                    </h3>
-                    <p
-                      style={{
-                        fontSize: '0.825rem',
-                        color: 'var(--text-muted)',
-                        lineHeight: 1.55,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {project.description || 'No description provided.'}
-                    </p>
-                  </div>
-
-                  {/* Footer */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      paddingTop: '16px',
-                      marginTop: 'auto',
-                      borderTop: '1px solid rgba(255,255,255,0.05)',
-                      fontSize: '0.75rem',
-                      color: 'var(--text-muted)',
-                    }}
-                  >
-                    <Clock size={12} />
-                    {project.createdAt
-                      ? new Date(project.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                      : 'N/A'}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </>
+            </div>
+          </div>
+        </motion.div>
       )}
     </div>
   );

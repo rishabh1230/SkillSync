@@ -131,28 +131,39 @@ const NotificationDropdown: React.FC<Props> = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: -8, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -8, scale: 0.97 }}
-          transition={{ duration: 0.18, ease: 'easeOut' }}
-          style={{
-            position: 'absolute',
-            top: '110%',
-            right: 0,
-            width: 360,
-            maxHeight: 480,
-            background: 'var(--bg-secondary)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '16px',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-            zIndex: 1000,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(0,0,0,0.6)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 9998,
+            }}
+          />
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            style={{
+              position: 'fixed',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: 380,
+              background: 'var(--bg-primary)',
+              borderLeft: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: '-20px 0 60px rgba(0,0,0,0.5)',
+              zIndex: 9999,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
           {/* Header */}
           <div
             style={{
@@ -287,7 +298,8 @@ const NotificationDropdown: React.FC<Props> = ({ isOpen, onClose }) => {
               </div>
             )}
           </div>
-        </motion.div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
