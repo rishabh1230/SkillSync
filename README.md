@@ -45,9 +45,11 @@ Synchronous HTTP calls between services are minimized. Instead, services communi
 A unified **NestJS API Gateway** acts as the single entry point for the frontend client. It handles request routing, JWT validation, payload parsing (including `multipart/form-data` for AWS S3 uploads), and strict access control before traffic ever hits internal microservices.
 
 ### 🎨 Premium, Dynamic Frontend
-The client application isn't just functional—it's beautiful. Built with React 19, it features:
-- **Glassmorphism Design System**: Dynamic dual-tone radial gradients, deep drop-shadows, and backdrop blurs.
-- **Micro-Animations**: Fluid page transitions and hover states powered by `framer-motion`.
+The client application isn't just functional—it's beautifully engineered as a modern workspace. Built with React 19, it features:
+- **Workspace Dashboard**: A rigid layout featuring real-time presence, dynamic metrics, and quick action widgets.
+- **Global Command Palette**: A sleek `Ctrl + K` interface for instant application-wide navigation.
+- **Animated Auth Views**: Split-pane login and registration screens featuring a dynamic typewriter quote engine.
+- **Glassmorphism Design System**: Dark luxury aesthetics with dynamic dual-tone radial gradients, deep drop-shadows, and backdrop blurs.
 - **Advanced Media Handling**: A custom multi-video rendering engine that intelligently embeds YouTube and native Google Drive iframe streams.
 
 ### ☁️ Cloud Object Storage
@@ -59,14 +61,25 @@ Direct integration with **AWS S3** for secure, durable, and highly available sto
 
 ```mermaid
 flowchart TD
-    Client["Frontend Client (React/Vite)"]
+    subgraph Frontend["Frontend Architecture (React 19 / Vite)"]
+        direction TB
+        CoreUI["Premium UI Engine<br/>(Glassmorphism, Framer Motion)"]
+        Dashboard["Workspace Dashboard<br/>(Rigid Layout, Metrics)"]
+        CmdPalette["Global Command Palette<br/>(Ctrl+K Navigation)"]
+        AuthUI["Animated Auth Views<br/>(Typewriter Engine)"]
+        
+        CoreUI --- Dashboard
+        CoreUI --- CmdPalette
+        CoreUI --- AuthUI
+    end
+
     Gateway["API Gateway (NestJS)"]
     S3["AWS S3 Bucket"]
 
-    Client -->|HTTP / REST| Gateway
+    Frontend -->|HTTP / REST| Gateway
     Gateway -->|Multipart Upload| S3
 
-    subgraph Microservices Cluster
+    subgraph Microservices["Microservices Cluster"]
         Auth["Auth Service"]
         User["User Service"]
         Project["Project Service"]
@@ -103,7 +116,7 @@ flowchart TD
     RabbitMQ -->|Consume Events| Notification
     RabbitMQ -->|Consume Events| Auth
 
-    Chat <-->|WebSocket| Client
+    Chat <-->|WebSocket| Frontend
 ```
 
 ---
