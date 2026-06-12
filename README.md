@@ -1,5 +1,5 @@
-<div align="center">
-  <img src="./frontend/public/logo.jpeg" alt="SkillSync Logo" width="120" style="border-radius: 20px; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4); margin-bottom: 20px;" />
+<img width="100" height="100" align="center" alt="download" src="https://github.com/user-attachments/assets/df540ec8-fb3c-495f-9f5c-17c0eadf52b3" />
+
 
   # 🚀 SkillSync
 
