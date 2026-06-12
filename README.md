@@ -9,7 +9,11 @@
   **A Cloud-Native, Distributed Platform for Scalable Collaboration & Hackathon Management**
   
 
-https://github.com/user-attachments/assets/120af0ab-3c05-4206-8b86-d693a1a398b3
+
+
+https://github.com/user-attachments/assets/a1e452a9-7c23-4105-937f-b1cd6fd936da
+
+
 
 
 
