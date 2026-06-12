@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, FolderPlus, User, Zap, Trophy, MessageSquare, LogOut, Heart, Calendar, Diamond, Settings, Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import SkillSyncLogo from './SkillSyncLogo';
 
 const navItems = [
   { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
@@ -35,19 +36,17 @@ const Sidebar: React.FC = () => {
       <div 
         onClick={() => navigate('/dashboard')}
         style={{ 
-          width: '46px', 
-          height: '46px', 
-          borderRadius: '50%', 
-          background: '#ffffff', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
           cursor: 'pointer',
           marginBottom: '3rem',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'transform 0.2s ease',
         }}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
       >
-        <span style={{ color: '#000', fontWeight: 900, fontSize: '1.2rem', letterSpacing: '-1px' }}>INI</span>
+        <SkillSyncLogo size={52} />
       </div>
 
       {/* Nav Items */}

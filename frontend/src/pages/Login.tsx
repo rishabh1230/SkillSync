@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, ArrowRight, Zap, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import SkillSyncLogo from '../components/SkillSyncLogo';
+import { Typewriter } from '../components/Typewriter';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -30,301 +32,140 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Background decorations */}
-      <div
-        style={{
-          position: 'fixed',
-          top: '-20%',
-          left: '-10%',
-          width: '500px',
-          height: '500px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '-20%',
-          right: '-10%',
-          width: '500px',
-          height: '500px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      <style>{`
+        .auth-right-pane { display: none; }
+        @media (min-width: 768px) {
+          .auth-right-pane { 
+            display: block; 
+            flex: 1; 
+            position: relative; 
+            background-size: cover; 
+            background-position: center; 
+          }
+        }
+        .form-container { width: 100%; max-width: 400px; margin: 0 auto; }
+      `}</style>
 
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        style={{ width: '100%', maxWidth: '420px', position: 'relative' }}
-      >
-        {/* Card */}
-        <div
-          style={{
-            background: 'rgba(12,12,20,0.85)',
-            backdropFilter: 'blur(24px)',
-            border: 'none',
-            borderRadius: '24px',
-            padding: '2.5rem',
-            boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
-          }}
-        >
-          {/* Brand */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
-            <div
-              style={{
-                width: '52px',
-                height: '52px',
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, #06b6d4, #8b5cf6)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '1rem',
-                boxShadow: '0 0 32px rgba(6,182,212,0.35)',
-              }}
-            >
-              <Zap size={26} color="#fff" />
-            </div>
-            <h1
-              style={{
-                fontSize: '1.5rem',
-                fontWeight: 800,
-                letterSpacing: '-0.025em',
-                color: '#fff',
-                marginBottom: '0.35rem',
-              }}
-            >
-              Welcome back
-            </h1>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-              Sign in to your SkillSync account
-            </p>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Email */}
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '0.8rem',
-                  fontWeight: 500,
-                  color: 'var(--text-secondary)',
-                  marginBottom: '6px',
-                }}
-              >
-                Email address
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Mail
-                  size={16}
-                  style={{
-                    position: 'absolute',
-                    left: '14px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: 'var(--text-muted)',
-                    pointerEvents: 'none',
-                  }}
-                />
-                <input
-                  type="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem 0.75rem 2.75rem',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '0.9rem',
-                    fontFamily: 'inherit',
-                    outline: 'none',
-                    transition: 'border-color 0.2s, box-shadow 0.2s',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--accent-primary)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(6,182,212,0.12)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(255,255,255,0.08)';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '0.8rem',
-                  fontWeight: 500,
-                  color: 'var(--text-secondary)',
-                  marginBottom: '6px',
-                }}
-              >
-                Password
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Lock
-                  size={16}
-                  style={{
-                    position: 'absolute',
-                    left: '14px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: 'var(--text-muted)',
-                    pointerEvents: 'none',
-                  }}
-                />
-                <input
-                  type={showPw ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 3rem 0.75rem 2.75rem',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '0.9rem',
-                    fontFamily: 'inherit',
-                    outline: 'none',
-                    transition: 'border-color 0.2s, box-shadow 0.2s',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--accent-primary)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(6,182,212,0.12)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(255,255,255,0.08)';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw((v) => !v)}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--text-muted)',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Error */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  background: 'rgba(239,68,68,0.1)',
-                  border: '1px solid rgba(239,68,68,0.2)',
-                  color: '#f87171',
-                  fontSize: '0.8rem',
-                }}
-              >
-                {error}
-              </motion.div>
-            )}
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                width: '100%',
-                padding: '0.85rem',
-                borderRadius: '12px',
-                border: 'none',
-                background: loading
-                  ? 'rgba(6,182,212,0.4)'
-                  : 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-                color: '#fff',
-                fontFamily: 'inherit',
-                fontSize: '0.9rem',
-                fontWeight: 600,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s',
-                boxShadow: loading ? 'none' : '0 4px 20px rgba(6,182,212,0.35)',
-                marginTop: '4px',
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) {
-                  (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)';
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 28px rgba(6,182,212,0.45)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.transform = 'none';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 20px rgba(6,182,212,0.35)';
-              }}
-            >
-              {loading ? 'Signing in…' : 'Sign In'}
-              {!loading && <ArrowRight size={17} />}
-            </button>
-          </form>
-
-          {/* Footer link */}
-          <p
-            style={{
-              textAlign: 'center',
-              marginTop: '1.5rem',
-              fontSize: '0.85rem',
-              color: 'var(--text-muted)',
-            }}
+      {/* Left Pane: Form */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '2rem', position: 'relative', justifyContent: 'center' }}>
+        <div className="form-container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            Don't have an account?{' '}
-            <Link
-              to="/register"
-              style={{ color: 'var(--accent-primary)', fontWeight: 500, textDecoration: 'none' }}
-            >
-              Sign up free
-            </Link>
-          </p>
+            <div style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
+              <Link to="/" style={{ display: 'inline-block', marginBottom: '1.5rem' }}>
+                <SkillSyncLogo size={80} />
+              </Link>
+              <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem', letterSpacing: '-0.5px' }}>
+                Welcome Back
+              </h1>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                Sign in to your SkillSync account to continue building.
+              </p>
+            </div>
+
+            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                  Email Address
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input
+                    type="email"
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '0.85rem 1rem 0.85rem 3rem', background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#fff', fontSize: '0.95rem', outline: 'none', transition: 'all 0.2s' }}
+                    onFocus={(e) => { e.target.style.borderColor = 'var(--accent-primary)'; e.target.style.boxShadow = '0 0 0 4px rgba(163,230,53,0.1)'; }}
+                    onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                  Password
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input
+                    type={showPw ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '0.85rem 3rem 0.85rem 3rem', background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#fff', fontSize: '0.95rem', outline: 'none', transition: 'all 0.2s' }}
+                    onFocus={(e) => { e.target.style.borderColor = 'var(--accent-primary)'; e.target.style.boxShadow = '0 0 0 4px rgba(163,230,53,0.1)'; }}
+                    onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+                  >
+                    {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} style={{ padding: '12px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontSize: '0.85rem', textAlign: 'center' }}>
+                  {error}
+                </motion.div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', background: loading ? 'rgba(163,230,53,0.4)' : 'var(--accent-primary)', color: '#000', fontSize: '1rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s', marginTop: '8px' }}
+                onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(163,230,53,0.3)'; } }}
+                onMouseLeave={e => { if (!loading) { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; } }}
+              >
+                {loading ? 'Signing in...' : 'Sign In'}
+                {!loading && <ArrowRight size={18} />}
+              </button>
+            </form>
+
+            <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+              Don't have an account?{' '}
+              <Link to="/register" style={{ color: 'var(--accent-primary)', fontWeight: 600, textDecoration: 'none' }}>
+                Create one now
+              </Link>
+            </p>
+          </motion.div>
         </div>
-      </motion.div>
+
+        <div style={{ marginTop: 'auto' }} />
+      </div>
+
+      {/* Right Pane: Image & Quote */}
+      <div 
+        className="auth-right-pane"
+        style={{ 
+          backgroundImage: 'url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop")',
+        }}
+      >
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-primary) 0%, transparent 60%)' }} />
+        
+        <div style={{ position: 'absolute', bottom: '3rem', left: '3rem', right: '3rem', zIndex: 10 }}>
+          <blockquote style={{ margin: 0, padding: 0 }}>
+            <p style={{ fontSize: '1.75rem', fontWeight: 600, color: '#fff', lineHeight: 1.3, marginBottom: '1rem' }}>
+              "<Typewriter 
+                text="Welcome Back! The journey to building great products continues." 
+                speed={50} 
+              />"
+            </p>
+            <cite style={{ fontSize: '1rem', fontStyle: 'normal', color: 'var(--accent-primary)', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
+              — SkillSync Community
+            </cite>
+          </blockquote>
+        </div>
+      </div>
     </div>
   );
 };

@@ -48,7 +48,7 @@ const ProtectedRoute: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-primary)' }}>
       <Sidebar />
       <main
         style={{
