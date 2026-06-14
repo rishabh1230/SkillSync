@@ -204,5 +204,6 @@ docker-compose up --build
 This project is open-source and available under the MIT License.
 
 <div align="center">
-  <i>Engineered with passion for scalable backend design and premium user experiences.</i>
+  <i>Engineered with passion for scalable backend design and premium user experiences.
+  Rishabh Pandey</i>
 </div>
