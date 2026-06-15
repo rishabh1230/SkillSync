@@ -207,3 +207,5 @@ This project is open-source and available under the MIT License.
   <i>Engineered with passion for scalable backend design and premium user experiences.
   Rishabh Pandey</i>
 </div>
+
+<img align="center" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExMzZwZHM4bTNoNjd3cmx5NDI5a3VnODNlN2VqYmlvNG8xdG93N2RsaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/5xRW2cUKfcyQg/giphy.gif" />
